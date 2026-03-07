@@ -1,5 +1,5 @@
-import { useEffect, useRef, useMemo } from 'react';
-import { MapContainer, TileLayer, useMap, Marker, Popup } from 'react-leaflet';
+import { useEffect } from 'react';
+import { MapContainer, TileLayer, useMap, Marker } from 'react-leaflet';
 import L from 'leaflet';
 import { powerNodes, PowerNode, cityCoords } from '@/data/nigeriaNodes';
 import NodeDetailCard from './NodeDetailCard';
