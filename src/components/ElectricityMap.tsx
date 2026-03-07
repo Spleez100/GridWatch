@@ -1,11 +1,12 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import L from 'leaflet';
 import { powerNodes, PowerNode, cityCoords } from '@/data/nigeriaNodes';
 
-function createNodeIcon(status: string, size: number = 14) {
+function createNodeIcon(status: string, isSelected: boolean = false) {
+  const size = isSelected ? 18 : 12;
   return L.divIcon({
     className: '',
-    html: `<div class="node-marker status-${status}" style="width:${size}px;height:${size}px;"></div>`,
+    html: `<div class="node-marker status-${status}${isSelected ? ' selected' : ''}" style="width:${size}px;height:${size}px;"></div>`,
     iconSize: [size, size],
     iconAnchor: [size / 2, size / 2],
   });
@@ -14,35 +15,47 @@ function createNodeIcon(status: string, size: number = 14) {
 interface ElectricityMapProps {
   searchCity: string | null;
   onClearSearch: () => void;
-  onSelectNode: (node: PowerNode) => void;
+  onSelectNode: (node: PowerNode, pixel?: { x: number; y: number }) => void;
   selectedNode: PowerNode | null;
 }
 
 export default function ElectricityMap({ searchCity, onClearSearch, onSelectNode, selectedNode }: ElectricityMapProps) {
-  const mapContainerRef = useRef<HTMLDivElement | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
-  const markerRefs = useRef<Record<string, L.Marker>>({});
+  const markersRef = useRef<Record<string, L.Marker>>({});
+
+  const onSelectNodeRef = useRef(onSelectNode);
+  onSelectNodeRef.current = onSelectNode;
 
   useEffect(() => {
-    if (!mapContainerRef.current || mapRef.current) return;
+    if (!containerRef.current || mapRef.current) return;
 
-    const map = L.map(mapContainerRef.current, {
-      zoomControl: true,
+    const map = L.map(containerRef.current, {
+      zoomControl: false,
       attributionControl: false,
     }).setView([9.0, 7.5], 6);
 
+    // Dark tile layer
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
       maxZoom: 19,
     }).addTo(map);
 
+    // Custom zoom position
+    L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+    // Add markers
     powerNodes.forEach((node) => {
       const marker = L.marker([node.lat, node.lng], {
-        icon: createNodeIcon(node.status, selectedNode?.id === node.id ? 18 : 14),
+        icon: createNodeIcon(node.status),
       });
 
-      marker.on('click', () => onSelectNode(node));
+      marker.on('click', () => {
+        const px = map.latLngToContainerPoint([node.lat, node.lng]);
+        onSelectNodeRef.current(node, { x: px.x, y: px.y });
+      });
+
       marker.addTo(map);
-      markerRefs.current[node.id] = marker;
+      markersRef.current[node.id] = marker;
     });
 
     mapRef.current = map;
@@ -50,10 +63,11 @@ export default function ElectricityMap({ searchCity, onClearSearch, onSelectNode
     return () => {
       map.remove();
       mapRef.current = null;
-      markerRefs.current = {};
+      markersRef.current = {};
     };
-  }, [onSelectNode]);
+  }, []);
 
+  // Fly to searched city
   useEffect(() => {
     if (searchCity && cityCoords[searchCity] && mapRef.current) {
       mapRef.current.flyTo(cityCoords[searchCity], 12, { duration: 1.5 });
@@ -61,22 +75,21 @@ export default function ElectricityMap({ searchCity, onClearSearch, onSelectNode
     }
   }, [searchCity, onClearSearch]);
 
+  // Update marker icons on selection change
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
 
     powerNodes.forEach((node) => {
-      const marker = markerRefs.current[node.id];
+      const marker = markersRef.current[node.id];
       if (!marker) return;
-
-      marker.setIcon(createNodeIcon(node.status, selectedNode?.id === node.id ? 18 : 14));
+      marker.setIcon(createNodeIcon(node.status, selectedNode?.id === node.id));
     });
 
     if (selectedNode) {
-      map.flyTo([selectedNode.lat, selectedNode.lng], Math.max(map.getZoom(), 11), { duration: 1 });
+      map.flyTo([selectedNode.lat, selectedNode.lng], Math.max(map.getZoom(), 11), { duration: 0.8 });
     }
   }, [selectedNode]);
 
-  return <div ref={mapContainerRef} className="w-full h-full" aria-label="Electricity map" />;
+  return <div ref={containerRef} className="absolute inset-0" aria-label="Electricity map" />;
 }
-
