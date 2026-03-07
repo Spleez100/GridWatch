@@ -1,12 +1,17 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef } from 'react';
 import L from 'leaflet';
 import { powerNodes, PowerNode, cityCoords } from '@/data/nigeriaNodes';
 
 function createNodeIcon(status: string, isSelected: boolean = false) {
-  const size = isSelected ? 18 : 12;
+  const size = isSelected ? 30 : 26;
+  const statusClass = `status-${status}`;
+  const icon = status === 'green' ? '✓' : status === 'red' ? '!' : status === 'yellow' ? '⚡' : '⊘';
+
   return L.divIcon({
     className: '',
-    html: `<div class="node-marker status-${status}${isSelected ? ' selected' : ''}" style="width:${size}px;height:${size}px;"></div>`,
+    html: `<div class="node-icon-marker${isSelected ? ' selected' : ''}" style="width:${size}px;height:${size}px;">
+      <div class="marker-icon ${statusClass}">${icon}</div>
+    </div>`,
     iconSize: [size, size],
     iconAnchor: [size / 2, size / 2],
   });
@@ -35,15 +40,12 @@ export default function ElectricityMap({ searchCity, onClearSearch, onSelectNode
       attributionControl: false,
     }).setView([9.0, 7.5], 6);
 
-    // Dark tile layer
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
       maxZoom: 19,
     }).addTo(map);
 
-    // Custom zoom position
     L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-    // Add markers
     powerNodes.forEach((node) => {
       const marker = L.marker([node.lat, node.lng], {
         icon: createNodeIcon(node.status),
@@ -67,7 +69,6 @@ export default function ElectricityMap({ searchCity, onClearSearch, onSelectNode
     };
   }, []);
 
-  // Fly to searched city
   useEffect(() => {
     if (searchCity && cityCoords[searchCity] && mapRef.current) {
       mapRef.current.flyTo(cityCoords[searchCity], 12, { duration: 1.5 });
@@ -75,7 +76,6 @@ export default function ElectricityMap({ searchCity, onClearSearch, onSelectNode
     }
   }, [searchCity, onClearSearch]);
 
-  // Update marker icons on selection change
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
