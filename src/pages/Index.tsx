@@ -30,12 +30,7 @@ const Index = () => {
       <main className="flex-1 relative overflow-hidden">
         {activeTab === 'map' && (
           <>
-            <ElectricityMap
-              searchCity={searchCity}
-              onClearSearch={() => setSearchCity(null)}
-              onSelectNode={setSelectedNode}
-              selectedNode={selectedNode}
-            />
+            <div className="w-full h-full bg-map-bg" />
             <SearchBar onSearchCity={setSearchCity} onSelectNode={setSelectedNode} />
             <AlertBanner />
             <StatusLegend />
