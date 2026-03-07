@@ -31,6 +31,11 @@ const Index = () => {
         {activeTab === 'map' && (
           <>
             <ElectricityMap
+              searchCity={searchCity}
+              onClearSearch={() => setSearchCity(null)}
+              onSelectNode={setSelectedNode}
+              selectedNode={selectedNode}
+            />
             <SearchBar onSearchCity={setSearchCity} onSelectNode={setSelectedNode} />
             <AlertBanner />
             <StatusLegend />
