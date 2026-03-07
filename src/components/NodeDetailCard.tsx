@@ -4,10 +4,10 @@ import { X, Zap, Clock, MapPin, DollarSign, Building2, Shield, AlertTriangle, Ch
 import { motion } from 'framer-motion';
 
 const statusConfig = {
-  green: { label: 'Power Available', color: 'text-success', bg: 'bg-success/10' },
-  red: { label: 'Power Outage', color: 'text-destructive', bg: 'bg-destructive/10' },
-  yellow: { label: 'Unstable Supply', color: 'text-warning', bg: 'bg-warning/10' },
-  blue: { label: 'Planned Maintenance', color: 'text-info', bg: 'bg-info/10' },
+  green: { label: 'POWER ON', color: 'text-success' },
+  red: { label: 'OUTAGE', color: 'text-destructive' },
+  yellow: { label: 'UNSTABLE', color: 'text-warning' },
+  blue: { label: 'MAINTENANCE', color: 'text-info' },
 };
 
 const bandDescriptions: Record<string, string> = {
@@ -43,11 +43,10 @@ export default function NodeDetailCard({ node, pixel, onClose, onReport }: Props
     setTimeout(() => setReportSent(null), 2000);
   };
 
-  // Position card near the node but keep it on screen
   const style: React.CSSProperties = {};
   if (pixel) {
-    const cardW = 340;
-    const cardH = 420;
+    const cardW = 300;
+    const cardH = 380;
     const vw = typeof window !== 'undefined' ? window.innerWidth : 1200;
     const vh = typeof window !== 'undefined' ? window.innerHeight : 800;
 
@@ -72,48 +71,48 @@ export default function NodeDetailCard({ node, pixel, onClose, onReport }: Props
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.95 }}
-      transition={{ duration: 0.15 }}
+      transition={{ duration: 0.12 }}
       style={style}
-      className="absolute z-[1100] w-[340px] glass-card rounded-xl shadow-2xl shadow-black/40 overflow-hidden"
+      className="absolute z-[1100] w-[300px] glass-card rounded-lg shadow-2xl shadow-black/50 overflow-hidden"
     >
       {/* Header */}
-      <div className="px-4 pt-4 pb-3 border-b border-border/40">
+      <div className="px-3.5 pt-3.5 pb-2.5 border-b border-border/30">
         <div className="flex items-start justify-between">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <div className={`w-2.5 h-2.5 rounded-full ${node.status === 'green' ? 'bg-success' : node.status === 'red' ? 'bg-destructive' : node.status === 'yellow' ? 'bg-warning' : 'bg-info'} ${node.status === 'red' ? 'animate-pulse-soft' : ''}`} />
-              <span className={`text-xs font-medium ${cfg.color}`}>{cfg.label}</span>
+              <div className={`w-2 h-2 rounded-full ${node.status === 'green' ? 'bg-success' : node.status === 'red' ? 'bg-destructive' : node.status === 'yellow' ? 'bg-warning' : 'bg-info'}`} />
+              <span className={`text-[10px] font-medium tracking-widest ${cfg.color}`}>{cfg.label}</span>
             </div>
-            <h3 className="text-base font-semibold text-foreground">{node.name}</h3>
-            <p className="text-xs text-muted-foreground">{node.city}, Nigeria</p>
+            <h3 className="text-sm font-semibold text-foreground">{node.name}</h3>
+            <p className="text-[10px] text-muted-foreground tracking-wider">{node.city}, Nigeria</p>
           </div>
-          <button onClick={onClose} className="p-1.5 rounded-md hover:bg-accent transition-colors -mt-0.5">
-            <X className="w-4 h-4 text-muted-foreground" />
+          <button onClick={onClose} className="p-1 rounded hover:bg-accent transition-colors">
+            <X className="w-3.5 h-3.5 text-muted-foreground" />
           </button>
         </div>
       </div>
 
       {/* Details */}
-      <div className="px-4 py-3 space-y-2.5 text-sm">
+      <div className="px-3.5 py-2.5 space-y-2 text-[11px]">
         <Row icon={Zap} label="Band" value={`Band ${node.band}`} sub={bandDescriptions[node.band]} valueClass={bandColors[node.band]} />
-        <Row icon={MapPin} label="Area Type" value={node.areaType} />
-        <Row icon={Clock} label="Avg Supply" value={`${node.avgSupplyHours} hours/day`} />
+        <Row icon={MapPin} label="Area" value={node.areaType} />
+        <Row icon={Clock} label="Avg Supply" value={`${node.avgSupplyHours}h/day`} />
         <Row icon={Clock} label="Last Outage" value={node.lastOutage} />
         <Row icon={DollarSign} label="Tariff" value={`₦${node.tariffPerKwh}/kWh`} />
         <Row icon={Building2} label="DisCo" value={node.disco} />
         <Row icon={Shield} label="Reliability" value={`${node.reliabilityScore}%`} valueClass={node.reliabilityScore >= 70 ? 'text-success' : node.reliabilityScore >= 40 ? 'text-warning' : 'text-destructive'} />
       </div>
 
-      {/* Report Section */}
-      <div className="px-4 py-3 border-t border-border/40">
-        <p className="text-xs text-muted-foreground mb-2">Report current status</p>
+      {/* Report */}
+      <div className="px-3.5 py-2.5 border-t border-border/30">
+        <p className="text-[9px] text-muted-foreground mb-2 tracking-widest uppercase">Report Status</p>
         {reportSent ? (
-          <div className="text-xs text-success flex items-center gap-1.5 py-2">
-            <CheckCircle2 className="w-3.5 h-3.5" />
-            Report submitted — {reportSent}
+          <div className="text-[10px] text-success flex items-center gap-1.5 py-1.5">
+            <CheckCircle2 className="w-3 h-3" />
+            <span className="tracking-wider">Report submitted — {reportSent}</span>
           </div>
         ) : (
-          <div className="flex gap-2">
+          <div className="flex gap-1.5">
             <ReportBtn icon={CheckCircle2} label="Power On" color="text-success hover:bg-success/10" onClick={() => handleReport('Power Available')} />
             <ReportBtn icon={XCircle} label="No Power" color="text-destructive hover:bg-destructive/10" onClick={() => handleReport('No Power')} />
             <ReportBtn icon={AlertTriangle} label="Unstable" color="text-warning hover:bg-warning/10" onClick={() => handleReport('Fluctuating Power')} />
@@ -127,13 +126,13 @@ export default function NodeDetailCard({ node, pixel, onClose, onReport }: Props
 function Row({ icon: Icon, label, value, sub, valueClass }: { icon: any; label: string; value: string; sub?: string; valueClass?: string }) {
   return (
     <div className="flex items-center justify-between">
-      <div className="flex items-center gap-2 text-muted-foreground">
-        <Icon className="w-3.5 h-3.5 shrink-0" />
-        <span className="text-xs">{label}</span>
+      <div className="flex items-center gap-1.5 text-muted-foreground">
+        <Icon className="w-3 h-3 shrink-0" />
+        <span className="text-[10px] tracking-wider">{label}</span>
       </div>
       <div className="text-right">
-        <span className={`text-xs font-medium ${valueClass || 'text-foreground'}`}>{value}</span>
-        {sub && <p className="text-[10px] text-muted-foreground">{sub}</p>}
+        <span className={`text-[10px] font-medium ${valueClass || 'text-foreground'}`}>{value}</span>
+        {sub && <p className="text-[8px] text-muted-foreground">{sub}</p>}
       </div>
     </div>
   );
@@ -143,9 +142,9 @@ function ReportBtn({ icon: Icon, label, color, onClick }: { icon: any; label: st
   return (
     <button
       onClick={onClick}
-      className={`flex-1 flex flex-col items-center gap-1 py-2 rounded-lg border border-border/40 transition-colors text-xs ${color}`}
+      className={`flex-1 flex flex-col items-center gap-0.5 py-1.5 rounded border border-border/30 transition-colors text-[9px] tracking-wider ${color}`}
     >
-      <Icon className="w-4 h-4" />
+      <Icon className="w-3.5 h-3.5" />
       <span>{label}</span>
     </button>
   );

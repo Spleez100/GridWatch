@@ -1,28 +1,30 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 216 30% 6%;
+    --background: 216 30% 5%;
     --foreground: 210 33% 93%;
 
-    --card: 216 18% 12%;
+    --card: 216 20% 9%;
     --card-foreground: 210 33% 93%;
 
-    --popover: 216 18% 12%;
+    --popover: 216 20% 9%;
     --popover-foreground: 210 33% 93%;
 
     --primary: 142 71% 45%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 216 14% 14%;
+    --secondary: 216 14% 12%;
     --secondary-foreground: 210 33% 93%;
 
-    --muted: 216 14% 14%;
-    --muted-foreground: 215 9% 58%;
+    --muted: 216 14% 12%;
+    --muted-foreground: 215 9% 55%;
 
-    --accent: 216 20% 16%;
+    --accent: 216 20% 14%;
     --accent-foreground: 210 33% 93%;
 
     --destructive: 0 72% 51%;
@@ -37,19 +39,19 @@
     --success: 142 71% 45%;
     --success-foreground: 0 0% 100%;
 
-    --border: 216 14% 18%;
-    --input: 216 14% 18%;
+    --border: 216 14% 16%;
+    --input: 216 14% 16%;
     --ring: 142 71% 45%;
 
-    --radius: 0.75rem;
+    --radius: 0.5rem;
 
-    --sidebar-background: 216 30% 6%;
+    --sidebar-background: 216 30% 5%;
     --sidebar-foreground: 210 33% 93%;
     --sidebar-primary: 142 71% 45%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 216 20% 16%;
+    --sidebar-accent: 216 20% 14%;
     --sidebar-accent-foreground: 210 33% 93%;
-    --sidebar-border: 216 14% 18%;
+    --sidebar-border: 216 14% 16%;
     --sidebar-ring: 142 71% 45%;
   }
 }
@@ -60,15 +62,37 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: 'JetBrains Mono', monospace;
     overflow: hidden;
   }
 }
 
 @layer utilities {
   .glass-card {
-    @apply bg-card/85 backdrop-blur-xl border border-border/50;
+    @apply bg-card/90 backdrop-blur-xl border border-border/40;
   }
+}
+
+/* Grid overlay */
+.grid-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 500;
+  background-image:
+    linear-gradient(to right, hsl(210 20% 20% / 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, hsl(210 20% 20% / 0.08) 1px, transparent 1px);
+  background-size: 120px 120px;
+}
+
+/* Grid axis labels */
+.grid-axis-label {
+  position: absolute;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: hsl(215 9% 40%);
+  pointer-events: none;
+  z-index: 501;
 }
 
 /* Animations */
@@ -85,36 +109,37 @@
 /* Leaflet overrides for dark theme */
 .leaflet-container {
   background: #0B0F14 !important;
-  font-family: inherit !important;
+  font-family: 'JetBrains Mono', monospace !important;
 }
 
 .leaflet-control-zoom {
   border: none !important;
   margin-right: 12px !important;
-  margin-bottom: 48px !important;
+  margin-bottom: 80px !important;
 }
 
 .leaflet-control-zoom a {
-  background: hsl(216 18% 12% / 0.9) !important;
+  background: hsl(216 20% 9% / 0.9) !important;
   color: hsl(210 33% 93%) !important;
-  border: 1px solid hsl(216 14% 18% / 0.5) !important;
+  border: 1px solid hsl(216 14% 16% / 0.5) !important;
   backdrop-filter: blur(12px) !important;
-  width: 36px !important;
-  height: 36px !important;
-  line-height: 36px !important;
-  font-size: 16px !important;
+  width: 32px !important;
+  height: 32px !important;
+  line-height: 32px !important;
+  font-size: 14px !important;
+  font-family: 'JetBrains Mono', monospace !important;
 }
 
 .leaflet-control-zoom a:first-child {
-  border-radius: 8px 8px 0 0 !important;
+  border-radius: 4px 4px 0 0 !important;
 }
 
 .leaflet-control-zoom a:last-child {
-  border-radius: 0 0 8px 8px !important;
+  border-radius: 0 0 4px 4px !important;
 }
 
 .leaflet-control-zoom a:hover {
-  background: hsl(216 18% 16% / 0.9) !important;
+  background: hsl(216 20% 14% / 0.9) !important;
 }
 
 .leaflet-control-attribution {
@@ -126,6 +151,7 @@
   border-radius: 50%;
   cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
+  position: relative;
 }
 
 .node-marker:hover {
@@ -134,6 +160,56 @@
 
 .node-marker.selected {
   transform: scale(1.6);
+}
+
+/* Status icon markers */
+.node-icon-marker {
+  cursor: pointer;
+  transition: transform 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.node-icon-marker:hover {
+  transform: scale(1.15);
+}
+
+.node-icon-marker.selected {
+  transform: scale(1.2);
+}
+
+.node-icon-marker .marker-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+}
+
+.node-icon-marker .marker-icon.status-green {
+  background: hsl(142 71% 45%);
+  color: white;
+}
+
+.node-icon-marker .marker-icon.status-red {
+  background: hsl(15 80% 50%);
+  color: white;
+  animation: pulse-soft 2s ease-in-out infinite;
+}
+
+.node-icon-marker .marker-icon.status-yellow {
+  background: hsl(45 93% 47%);
+  color: black;
+}
+
+.node-icon-marker .marker-icon.status-blue {
+  background: hsl(210 100% 50%);
+  color: white;
 }
 
 .node-marker.status-green {
@@ -156,4 +232,16 @@
 .node-marker.status-blue {
   background: hsl(210 100% 50%);
   box-shadow: 0 0 8px 2px hsl(210 100% 50% / 0.5), 0 0 20px 5px hsl(210 100% 50% / 0.15);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: hsl(216 14% 20%);
+  border-radius: 2px;
 }

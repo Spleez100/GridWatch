@@ -1,10 +1,13 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import ElectricityMap from '@/components/ElectricityMap';
 import SearchBar from '@/components/SearchBar';
-import StatusLegend from '@/components/StatusLegend';
+import ScopePanel from '@/components/ScopePanel';
+import StatsPanel from '@/components/StatsPanel';
+import BottomToolbar from '@/components/BottomToolbar';
 import NodeDetailCard from '@/components/NodeDetailCard';
-import { PowerNode } from '@/data/nigeriaNodes';
+import { PowerNode, powerNodes } from '@/data/nigeriaNodes';
+import { TrendingUp } from 'lucide-react';
 
 const Index = () => {
   const [searchCity, setSearchCity] = useState<string | null>(null);
@@ -16,6 +19,14 @@ const Index = () => {
     setNodePixel(pixel ?? null);
   }, []);
 
+  const stats = useMemo(() => ({
+    total: powerNodes.length,
+    stable: powerNodes.filter(n => n.status === 'green').length,
+    critical: powerNodes.filter(n => n.status === 'red').length,
+    unstable: powerNodes.filter(n => n.status === 'yellow').length,
+    maintenance: powerNodes.filter(n => n.status === 'blue').length,
+  }), []);
+
   return (
     <div className="h-screen w-screen bg-background overflow-hidden relative">
       {/* Full-screen map */}
@@ -26,25 +37,51 @@ const Index = () => {
         selectedNode={selectedNode}
       />
 
-      {/* Top bar: logo + search */}
-      <div className="absolute top-0 left-0 right-0 z-[1000] pointer-events-none">
-        <div className="flex items-center gap-3 px-4 py-3 pointer-events-auto max-w-md">
-          <div className="flex items-center gap-2 shrink-0">
-            <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--primary))" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
-              </svg>
-            </div>
-            <span className="text-sm font-bold text-foreground tracking-tight hidden sm:inline">GridWatch</span>
-          </div>
-          <SearchBar onSearchCity={setSearchCity} onSelectNode={handleSelectNode} />
+      {/* Grid overlay */}
+      <div className="grid-overlay" />
+
+      {/* Grid axis labels */}
+      {['A', 'B', 'C', 'D', 'E'].map((label, i) => (
+        <span
+          key={`col-${label}`}
+          className="grid-axis-label"
+          style={{ top: 8, left: `${(i + 1) * 120}px` }}
+        >
+          {label}
+        </span>
+      ))}
+      {[1, 2, 3, 4].map((label, i) => (
+        <span
+          key={`row-${label}`}
+          className="grid-axis-label"
+          style={{ top: `${(i + 1) * 120}px`, left: 8 }}
+        >
+          {label}.
+        </span>
+      ))}
+
+      {/* Top-left logo */}
+      <div className="absolute top-4 left-5 z-[1000]">
+        <div className="w-9 h-9 rounded-md bg-card/80 backdrop-blur border border-border/40 flex items-center justify-center">
+          <TrendingUp className="w-4 h-4 text-foreground" />
         </div>
       </div>
 
-      {/* Status legend */}
-      <StatusLegend />
+      {/* Top-right search */}
+      <div className="absolute top-4 right-5 z-[1000]">
+        <SearchBar onSearchCity={setSearchCity} onSelectNode={handleSelectNode} />
+      </div>
 
-      {/* Node detail card anchored near clicked node */}
+      {/* Left scope panel */}
+      <ScopePanel />
+
+      {/* Right stats panel */}
+      <StatsPanel stats={stats} />
+
+      {/* Bottom toolbar */}
+      <BottomToolbar stats={stats} />
+
+      {/* Node detail card */}
       <AnimatePresence>
         {selectedNode && (
           <NodeDetailCard
