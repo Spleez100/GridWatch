@@ -1,16 +1,15 @@
 import { useState, useRef } from 'react';
 import { Search } from 'lucide-react';
-import { powerNodes, cityCoords } from '@/data/nigeriaNodes';
+import { powerNodes, cityCoords, PowerNode } from '@/data/nigeriaNodes';
 
 interface Props {
   onSearchCity: (city: string) => void;
-  onSelectNode: (node: typeof powerNodes[0]) => void;
+  onSelectNode: (node: PowerNode) => void;
 }
 
 export default function SearchBar({ onSearchCity, onSelectNode }: Props) {
   const [query, setQuery] = useState('');
   const [focused, setFocused] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
 
   const results = query.length > 1
     ? [
@@ -25,21 +24,20 @@ export default function SearchBar({ onSearchCity, onSelectNode }: Props) {
     : [];
 
   return (
-    <div className="absolute top-4 left-4 z-[1000] w-[320px]">
+    <div className="flex-1 relative">
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
         <input
-          ref={inputRef}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => setFocused(true)}
           onBlur={() => setTimeout(() => setFocused(false), 200)}
-          placeholder="Search city, area, or street..."
+          placeholder="Search your location..."
           className="w-full pl-10 pr-4 py-2.5 bg-card/90 backdrop-blur-xl border border-border/50 rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/50"
         />
       </div>
       {focused && results.length > 0 && (
-        <div className="mt-1.5 glass-card rounded-lg overflow-hidden max-h-[300px] overflow-y-auto">
+        <div className="absolute top-full mt-1.5 left-0 right-0 glass-card rounded-lg overflow-hidden max-h-[300px] overflow-y-auto">
           {results.map((r, i) => (
             <button
               key={i}
