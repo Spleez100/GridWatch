@@ -254,11 +254,6 @@ export default function CriticalAlertsCarousel() {
                             </div>
                             <div className="flex items-center gap-1.5 mt-0.5">
                               <span className="text-[7px] text-muted-foreground">{timeAgo(event.created_at)}</span>
-                              {event.source_platform && (
-                                <span className="text-[7px] text-muted-foreground/70">
-                                  {platformIcons[event.source_platform] || event.source_platform}
-                                </span>
-                              )}
                               {event.signal_count > 1 && (
                                 <span className="text-[7px] text-primary">×{event.signal_count} reports</span>
                               )}
