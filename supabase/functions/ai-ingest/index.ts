@@ -138,11 +138,14 @@ Deno.serve(async (req) => {
 CRITICAL RULES:
 - Report ONLY real, current outage or restoration events from the last few hours
 - Include specific locations (neighborhoods, areas, cities, states)
+- ALWAYS capture the social media handle/username of the person reporting (e.g. @username for Twitter/X, Facebook display name, Reddit username)
+- ALWAYS capture the source URL/link if available
 - Note if multiple people are reporting the same outage
 - Note how long the outage has lasted if mentioned
 - Distinguish between outages, restorations, and intermittent supply
 - Nigerian slang: "no light"/"light don go"/"nepa don take light" = outage; "light don come" = restoration
-- Be factual, include source platform (Twitter/X, Facebook, news, etc.)`,
+- Be factual, include source platform (Twitter/X, Facebook, news, etc.)
+- Do NOT report old events as recent. Only include events from the last 24 hours`,
             },
             {
               role: "user",
