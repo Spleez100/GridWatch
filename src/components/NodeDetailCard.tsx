@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { PowerNode } from '@/data/nigeriaNodes';
-import { X, Zap, Clock, MapPin, DollarSign, Building2, Shield, AlertTriangle, CheckCircle2, XCircle } from 'lucide-react';
+import { X, Zap, Clock, MapPin, DollarSign, Building2, Shield, AlertTriangle, CheckCircle2, XCircle, BarChart3, Users } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const statusConfig = {
-  green: { label: 'POWER ON', color: 'text-success' },
-  red: { label: 'OUTAGE', color: 'text-destructive' },
-  yellow: { label: 'UNSTABLE', color: 'text-warning' },
+  green: { label: 'POWER AVAILABLE', color: 'text-success' },
+  red: { label: 'POWER OUTAGE', color: 'text-destructive' },
+  yellow: { label: 'INTERMITTENT SUPPLY', color: 'text-warning' },
   blue: { label: 'MAINTENANCE', color: 'text-info' },
 };
 
@@ -43,10 +43,13 @@ export default function NodeDetailCard({ node, pixel, onClose, onReport }: Props
     setTimeout(() => setReportSent(null), 2000);
   };
 
+  // Expected hours based on band
+  const expectedHours = { A: 20, B: 16, C: 12, D: 8, E: 4 }[node.band] ?? 0;
+
   const style: React.CSSProperties = {};
   if (pixel) {
     const cardW = 300;
-    const cardH = 380;
+    const cardH = 420;
     const vw = typeof window !== 'undefined' ? window.innerWidth : 1200;
     const vh = typeof window !== 'undefined' ? window.innerHeight : 800;
 
@@ -95,17 +98,19 @@ export default function NodeDetailCard({ node, pixel, onClose, onReport }: Props
       {/* Details */}
       <div className="px-3.5 py-2.5 space-y-2 text-[11px]">
         <Row icon={Zap} label="Band" value={`Band ${node.band}`} sub={bandDescriptions[node.band]} valueClass={bandColors[node.band]} />
-        <Row icon={MapPin} label="Area" value={node.areaType} />
-        <Row icon={Clock} label="Avg Supply" value={`${node.avgSupplyHours}h/day`} />
+        <Row icon={BarChart3} label="Expected Supply" value={`${expectedHours} hrs`} />
+        <Row icon={Clock} label="Actual Today" value={`${node.avgSupplyHours} hrs`} valueClass={node.avgSupplyHours < expectedHours * 0.5 ? 'text-destructive' : 'text-foreground'} />
+        <Row icon={MapPin} label="Area Type" value={node.areaType} />
         <Row icon={Clock} label="Last Outage" value={node.lastOutage} />
         <Row icon={DollarSign} label="Tariff" value={`₦${node.tariffPerKwh}/kWh`} />
         <Row icon={Building2} label="DisCo" value={node.disco} />
-        <Row icon={Shield} label="Reliability" value={`${node.reliabilityScore}%`} valueClass={node.reliabilityScore >= 70 ? 'text-success' : node.reliabilityScore >= 40 ? 'text-warning' : 'text-destructive'} />
+        <Row icon={Users} label="Reports" value={`${node.reportCount}`} />
+        <Row icon={Shield} label="Confidence" value={`${node.reliabilityScore}%`} valueClass={node.reliabilityScore >= 70 ? 'text-success' : node.reliabilityScore >= 40 ? 'text-warning' : 'text-destructive'} />
       </div>
 
       {/* Report */}
       <div className="px-3.5 py-2.5 border-t border-border/30">
-        <p className="text-[9px] text-muted-foreground mb-2 tracking-widest uppercase">Report Status</p>
+        <p className="text-[9px] text-muted-foreground mb-2 tracking-widest uppercase">Report Power Status</p>
         {reportSent ? (
           <div className="text-[10px] text-success flex items-center gap-1.5 py-1.5">
             <CheckCircle2 className="w-3 h-3" />
@@ -115,7 +120,7 @@ export default function NodeDetailCard({ node, pixel, onClose, onReport }: Props
           <div className="flex gap-1.5">
             <ReportBtn icon={CheckCircle2} label="Power On" color="text-success hover:bg-success/10" onClick={() => handleReport('Power Available')} />
             <ReportBtn icon={XCircle} label="No Power" color="text-destructive hover:bg-destructive/10" onClick={() => handleReport('No Power')} />
-            <ReportBtn icon={AlertTriangle} label="Unstable" color="text-warning hover:bg-warning/10" onClick={() => handleReport('Fluctuating Power')} />
+            <ReportBtn icon={AlertTriangle} label="Unstable" color="text-warning hover:bg-warning/10" onClick={() => handleReport('Intermittent Supply')} />
           </div>
         )}
       </div>
