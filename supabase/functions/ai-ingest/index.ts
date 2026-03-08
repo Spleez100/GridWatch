@@ -69,6 +69,8 @@ interface ExtractedSignal {
   confidence: number;
   snippet: string;
   source_platform: string;
+  source_handle: string | null;
+  source_url: string | null;
   duration_mentioned: string | null;
   multiple_reports: boolean;
 }
