@@ -630,11 +630,15 @@ function findBestNodeMatch(
     state: string;
     status: string;
     severity: string;
+    infrastructure_level?: string;
+    feeder_name?: string | null;
+    parent_node_id?: string | null;
   }>
 ): (typeof nodes)[0] | null {
   const loc = signal.location.toLowerCase();
   const city = signal.city.toLowerCase();
   const state = signal.state.toLowerCase();
+  const infraDetail = signal.infrastructure_detail?.toLowerCase();
 
   let bestNode: (typeof nodes)[0] | null = null;
   let bestScore = 0;
@@ -644,11 +648,31 @@ function findBestNodeMatch(
     const nName = node.name.toLowerCase();
     const nCity = node.city.toLowerCase();
     const nState = node.state.toLowerCase();
+    const nFeeder = node.feeder_name?.toLowerCase();
+    const nLevel = node.infrastructure_level || 'station';
 
     // Extract station base name (before voltage class)
     const baseName = nName.split(/\s+\d+\//).at(0)?.trim() || nName;
 
-    // Exact station name match (AI should return exact names)
+    // PRIORITY 1: Match specific infrastructure detail if provided
+    if (infraDetail) {
+      // Check for feeder match
+      if (nLevel === 'feeder' && nFeeder && infraDetail.includes(nFeeder)) {
+        score += 150; // Highest priority for feeder match
+      } else if (nLevel === 'feeder' && nName.includes(infraDetail)) {
+        score += 140;
+      }
+      // Check for transformer/service area match
+      else if ((nLevel === 'transformer' || nLevel === 'service_area') && nName.includes(infraDetail)) {
+        score += 130;
+      }
+      // Check if infrastructure detail matches location part of node name
+      else if (infraDetail.includes(baseName) || baseName.includes(infraDetail)) {
+        score += 100;
+      }
+    }
+
+    // PRIORITY 2: Exact station name match (AI should return exact names)
     if (nName === loc || baseName === loc) score += 100;
     // Station name contains location or vice versa
     else if (nName.includes(loc) || loc.includes(baseName)) score += 80;
@@ -660,17 +684,21 @@ function findBestNodeMatch(
       if (wordMatches.length > 0) score += 40 + (wordMatches.length * 15);
     }
 
-    // City match
+    // PRIORITY 3: City match
     if (nCity === city) score += 50;
     else if (nCity.includes(city) || city.includes(nCity)) score += 30;
     // Location string matches city name
     if (nCity === loc || nCity.includes(loc) || loc.includes(nCity)) score += 35;
 
-    // State match
+    // PRIORITY 4: State match
     if (nState === state) score += 20;
 
-    // Prefer transmission stations (330kV) for area-wide reports
-    if (nName.includes("330") && score > 0) score += 5;
+    // PRIORITY 5: Infrastructure level preference
+    // For specific infrastructure failures, prefer child nodes
+    if (signal.event_type === 'TRANSFORMER_FAILURE' && nLevel === 'transformer') score += 15;
+    else if (signal.event_type === 'FEEDER_FAILURE' && nLevel === 'feeder') score += 15;
+    // For general outages without infrastructure detail, prefer parent stations
+    else if (!infraDetail && nLevel === 'transmission') score += 5;
 
     if (score > bestScore) {
       bestScore = score;
