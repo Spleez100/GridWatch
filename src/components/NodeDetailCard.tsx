@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { DbNode, statusToColor, bandExpectedHours } from '@/hooks/useGridData';
-import { X, Zap, Clock, MapPin, DollarSign, Building2, Shield, AlertTriangle, CheckCircle2, XCircle, BarChart3, Users } from 'lucide-react';
+import { X, Zap, Clock, MapPin, DollarSign, Building2, Shield, AlertTriangle, CheckCircle2, XCircle, BarChart3, Users, Activity, Globe } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const statusConfig: Record<string, { label: string; color: string }> = {
