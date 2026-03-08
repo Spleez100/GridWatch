@@ -56,7 +56,10 @@ export default function ServiceAreasPanel({ nodes, onSelectNode, onFlyTo, onClos
       className="absolute top-16 left-5 z-[1000] w-[280px] max-h-[60vh] glass-card rounded-lg overflow-hidden"
     >
       <div className="px-3 pt-3 pb-2 border-b border-border/30">
-        <h3 className="text-[11px] font-semibold text-foreground tracking-widest uppercase mb-2">Service Areas</h3>
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="text-[11px] font-semibold text-foreground tracking-widest uppercase">Service Areas</h3>
+          <button onClick={onClose} className="p-1 rounded hover:bg-accent transition-colors"><X className="w-3.5 h-3.5 text-muted-foreground" /></button>
+        </div>
         <div className="flex gap-1">
           {(['all', 'outage', 'powered', 'intermittent'] as const).map((f) => (
             <button
