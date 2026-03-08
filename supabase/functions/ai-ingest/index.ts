@@ -230,6 +230,15 @@ IMPORTANT MATCHING RULES:
 - For area-wide reports, match to the main transmission station (330kV) for that city
 - Always use the EXACT station name from the list above when matching
 
+INFRASTRUCTURE DETAIL EXTRACTION:
+- If the report mentions a specific FEEDER name (e.g., "GRA Feeder 1", "Industrial Estate Feeder"), extract it to infrastructure_detail
+- If the report mentions a specific TRANSFORMER location (e.g., "Allen Avenue Transformer", "Opebi Road Transformer"), extract it to infrastructure_detail
+- If the report mentions a SERVICE AREA or STREET (e.g., "Lekki Phase 1", "Victoria Island", "Banana Island"), extract it to infrastructure_detail
+- Examples:
+  * "No light on Allen Avenue transformer in Ikeja" → infrastructure_detail: "Allen Avenue Transformer"
+  * "GRA Feeder 2 is down in Port Harcourt" → infrastructure_detail: "GRA Feeder 2"
+  * "No power in Lekki Phase 1 since morning" → infrastructure_detail: "Lekki Phase 1"
+
 NIGERIAN ELECTRICITY LANGUAGE:
 Outage: "no light", "light don go", "nepa don take light", "no power since", "light never come", "power never come", "blackout", "power failure", "grid collapse"
 Restoration: "light don come", "power don restore", "electricity restored", "light is back"
