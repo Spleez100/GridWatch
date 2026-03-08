@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import ElectricityMap, { ElectricityMapHandle } from '@/components/ElectricityMap';
+import MiniGlobe from '@/components/MiniGlobe';
 import { Plus, Minus } from 'lucide-react';
 import SearchBar from '@/components/SearchBar';
 import ScopePanel, { ScopeView } from '@/components/ScopePanel';
