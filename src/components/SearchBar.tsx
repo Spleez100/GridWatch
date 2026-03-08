@@ -1,27 +1,18 @@
 import { useState } from 'react';
 import { Search } from 'lucide-react';
-import { powerNodes, cityCoords, PowerNode } from '@/data/nigeriaNodes';
+import { DbNode, useSearchNodes } from '@/hooks/useGridData';
 
 interface Props {
-  onSearchCity: (city: string) => void;
-  onSelectNode: (node: PowerNode) => void;
+  nodes: DbNode[];
+  onSearchCity: (lat: number, lng: number) => void;
+  onSelectNode: (node: DbNode) => void;
 }
 
-export default function SearchBar({ onSearchCity, onSelectNode }: Props) {
+export default function SearchBar({ nodes, onSearchCity, onSelectNode }: Props) {
   const [query, setQuery] = useState('');
   const [focused, setFocused] = useState(false);
-
-  const results = query.length > 1
-    ? [
-        ...Object.keys(cityCoords)
-          .filter(c => c.toLowerCase().includes(query.toLowerCase()))
-          .map(c => ({ type: 'city' as const, label: c, city: c })),
-        ...powerNodes
-          .filter(n => n.name.toLowerCase().includes(query.toLowerCase()) || n.disco.toLowerCase().includes(query.toLowerCase()))
-          .slice(0, 6)
-          .map(n => ({ type: 'node' as const, label: `${n.name}, ${n.city}`, node: n })),
-      ]
-    : [];
+  const search = useSearchNodes(nodes);
+  const results = search(query);
 
   return (
     <div className="relative w-[220px]">
@@ -43,8 +34,11 @@ export default function SearchBar({ onSearchCity, onSelectNode }: Props) {
               key={i}
               className="w-full text-left px-3 py-2 hover:bg-accent transition-colors text-[11px] flex items-center gap-2"
               onMouseDown={() => {
-                if (r.type === 'city') onSearchCity(r.city);
-                else if (r.node) onSelectNode(r.node);
+                if (r.type === 'city') {
+                  onSearchCity(r.lat, r.lng);
+                } else if (r.type === 'node' && r.node) {
+                  onSelectNode(r.node);
+                }
                 setQuery('');
               }}
             >

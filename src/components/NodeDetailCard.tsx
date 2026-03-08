@@ -1,13 +1,12 @@
 import { useState } from 'react';
-import { PowerNode } from '@/data/nigeriaNodes';
+import { DbNode, statusToColor, bandExpectedHours } from '@/hooks/useGridData';
 import { X, Zap, Clock, MapPin, DollarSign, Building2, Shield, AlertTriangle, CheckCircle2, XCircle, BarChart3, Users } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-const statusConfig = {
+const statusConfig: Record<string, { label: string; color: string }> = {
   green: { label: 'POWER AVAILABLE', color: 'text-success' },
   red: { label: 'POWER OUTAGE', color: 'text-destructive' },
   yellow: { label: 'INTERMITTENT SUPPLY', color: 'text-warning' },
-  blue: { label: 'MAINTENANCE', color: 'text-info' },
 };
 
 const bandDescriptions: Record<string, string> = {
@@ -27,24 +26,24 @@ const bandColors: Record<string, string> = {
 };
 
 interface Props {
-  node: PowerNode;
+  node: DbNode;
   pixel: { x: number; y: number } | null;
   onClose: () => void;
-  onReport: (node: PowerNode, type: string) => void;
+  onReport: (node: DbNode, type: string) => void;
+  submitting?: boolean;
 }
 
-export default function NodeDetailCard({ node, pixel, onClose, onReport }: Props) {
+export default function NodeDetailCard({ node, pixel, onClose, onReport, submitting }: Props) {
   const [reportSent, setReportSent] = useState<string | null>(null);
-  const cfg = statusConfig[node.status];
+  const color = statusToColor(node.status);
+  const cfg = statusConfig[color] || statusConfig.yellow;
+  const expectedHours = bandExpectedHours(node.band);
 
-  const handleReport = (type: string) => {
+  const handleReport = async (type: string) => {
     onReport(node, type);
     setReportSent(type);
-    setTimeout(() => setReportSent(null), 2000);
+    setTimeout(() => setReportSent(null), 3000);
   };
-
-  // Expected hours based on band
-  const expectedHours = { A: 20, B: 16, C: 12, D: 8, E: 4 }[node.band] ?? 0;
 
   const style: React.CSSProperties = {};
   if (pixel) {
@@ -69,6 +68,10 @@ export default function NodeDetailCard({ node, pixel, onClose, onReport }: Props
     style.top = 60;
   }
 
+  const lastOutageText = node.last_outage
+    ? `${Math.round((Date.now() - new Date(node.last_outage).getTime()) / 3600000)}h ago`
+    : 'N/A';
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
@@ -78,16 +81,15 @@ export default function NodeDetailCard({ node, pixel, onClose, onReport }: Props
       style={style}
       className="absolute z-[1100] w-[300px] glass-card rounded-lg shadow-2xl shadow-black/50 overflow-hidden"
     >
-      {/* Header */}
       <div className="px-3.5 pt-3.5 pb-2.5 border-b border-border/30">
         <div className="flex items-start justify-between">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <div className={`w-2 h-2 rounded-full ${node.status === 'green' ? 'bg-success' : node.status === 'red' ? 'bg-destructive' : node.status === 'yellow' ? 'bg-warning' : 'bg-info'}`} />
+              <div className={`w-2 h-2 rounded-full ${color === 'green' ? 'bg-success' : color === 'red' ? 'bg-destructive' : 'bg-warning'}`} />
               <span className={`text-[10px] font-medium tracking-widest ${cfg.color}`}>{cfg.label}</span>
             </div>
             <h3 className="text-sm font-semibold text-foreground">{node.name}</h3>
-            <p className="text-[10px] text-muted-foreground tracking-wider">{node.city}, Nigeria</p>
+            <p className="text-[10px] text-muted-foreground tracking-wider">{node.city}, {node.state}</p>
           </div>
           <button onClick={onClose} className="p-1 rounded hover:bg-accent transition-colors">
             <X className="w-3.5 h-3.5 text-muted-foreground" />
@@ -95,20 +97,18 @@ export default function NodeDetailCard({ node, pixel, onClose, onReport }: Props
         </div>
       </div>
 
-      {/* Details */}
       <div className="px-3.5 py-2.5 space-y-2 text-[11px]">
         <Row icon={Zap} label="Band" value={`Band ${node.band}`} sub={bandDescriptions[node.band]} valueClass={bandColors[node.band]} />
         <Row icon={BarChart3} label="Expected Supply" value={`${expectedHours} hrs`} />
-        <Row icon={Clock} label="Actual Today" value={`${node.avgSupplyHours} hrs`} valueClass={node.avgSupplyHours < expectedHours * 0.5 ? 'text-destructive' : 'text-foreground'} />
-        <Row icon={MapPin} label="Area Type" value={node.areaType} />
-        <Row icon={Clock} label="Last Outage" value={node.lastOutage} />
-        <Row icon={DollarSign} label="Tariff" value={`₦${node.tariffPerKwh}/kWh`} />
+        <Row icon={Clock} label="Actual Today" value={`${node.avg_supply_hours} hrs`} valueClass={node.avg_supply_hours < expectedHours * 0.5 ? 'text-destructive' : 'text-foreground'} />
+        <Row icon={MapPin} label="Area Type" value={node.area_type} />
+        <Row icon={Clock} label="Last Outage" value={lastOutageText} />
+        <Row icon={DollarSign} label="Tariff" value={`₦${node.tariff_per_kwh}/kWh`} />
         <Row icon={Building2} label="DisCo" value={node.disco} />
-        <Row icon={Users} label="Reports" value={`${node.reportCount}`} />
-        <Row icon={Shield} label="Confidence" value={`${node.reliabilityScore}%`} valueClass={node.reliabilityScore >= 70 ? 'text-success' : node.reliabilityScore >= 40 ? 'text-warning' : 'text-destructive'} />
+        <Row icon={Users} label="Reports" value={`${node.report_count}`} />
+        <Row icon={Shield} label="Confidence" value={`${node.confidence}%`} valueClass={node.confidence >= 70 ? 'text-success' : node.confidence >= 40 ? 'text-warning' : 'text-destructive'} />
       </div>
 
-      {/* Report */}
       <div className="px-3.5 py-2.5 border-t border-border/30">
         <p className="text-[9px] text-muted-foreground mb-2 tracking-widest uppercase">Report Power Status</p>
         {reportSent ? (
@@ -118,9 +118,9 @@ export default function NodeDetailCard({ node, pixel, onClose, onReport }: Props
           </div>
         ) : (
           <div className="flex gap-1.5">
-            <ReportBtn icon={CheckCircle2} label="Power On" color="text-success hover:bg-success/10" onClick={() => handleReport('Power Available')} />
-            <ReportBtn icon={XCircle} label="No Power" color="text-destructive hover:bg-destructive/10" onClick={() => handleReport('No Power')} />
-            <ReportBtn icon={AlertTriangle} label="Unstable" color="text-warning hover:bg-warning/10" onClick={() => handleReport('Intermittent Supply')} />
+            <ReportBtn icon={CheckCircle2} label="Power On" color="text-success hover:bg-success/10" onClick={() => handleReport('Power Available')} disabled={submitting} />
+            <ReportBtn icon={XCircle} label="No Power" color="text-destructive hover:bg-destructive/10" onClick={() => handleReport('No Power')} disabled={submitting} />
+            <ReportBtn icon={AlertTriangle} label="Unstable" color="text-warning hover:bg-warning/10" onClick={() => handleReport('Intermittent Supply')} disabled={submitting} />
           </div>
         )}
       </div>
@@ -143,11 +143,12 @@ function Row({ icon: Icon, label, value, sub, valueClass }: { icon: any; label: 
   );
 }
 
-function ReportBtn({ icon: Icon, label, color, onClick }: { icon: any; label: string; color: string; onClick: () => void }) {
+function ReportBtn({ icon: Icon, label, color, onClick, disabled }: { icon: any; label: string; color: string; onClick: () => void; disabled?: boolean }) {
   return (
     <button
       onClick={onClick}
-      className={`flex-1 flex flex-col items-center gap-0.5 py-1.5 rounded border border-border/30 transition-colors text-[9px] tracking-wider ${color}`}
+      disabled={disabled}
+      className={`flex-1 flex flex-col items-center gap-0.5 py-1.5 rounded border border-border/30 transition-colors text-[9px] tracking-wider ${color} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
     >
       <Icon className="w-3.5 h-3.5" />
       <span>{label}</span>

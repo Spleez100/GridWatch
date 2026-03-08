@@ -1,11 +1,12 @@
 import { useEffect, useRef } from 'react';
 import L from 'leaflet';
-import { powerNodes, PowerNode, cityCoords } from '@/data/nigeriaNodes';
+import { DbNode, statusToColor } from '@/hooks/useGridData';
 
 function createNodeIcon(status: string, isSelected: boolean = false) {
+  const color = statusToColor(status);
   const size = isSelected ? 30 : 26;
-  const statusClass = `status-${status}`;
-  const icon = status === 'green' ? '✓' : status === 'red' ? '!' : status === 'yellow' ? '⚡' : '⊘';
+  const statusClass = `status-${color}`;
+  const icon = color === 'green' ? '✓' : color === 'red' ? '!' : '⚡';
 
   return L.divIcon({
     className: '',
@@ -18,20 +19,23 @@ function createNodeIcon(status: string, isSelected: boolean = false) {
 }
 
 interface ElectricityMapProps {
-  searchCity: string | null;
-  onClearSearch: () => void;
-  onSelectNode: (node: PowerNode, pixel?: { x: number; y: number }) => void;
-  selectedNode: PowerNode | null;
+  nodes: DbNode[];
+  flyTo: { lat: number; lng: number; zoom: number } | null;
+  onClearFlyTo: () => void;
+  onSelectNode: (node: DbNode, pixel?: { x: number; y: number }) => void;
+  selectedNode: DbNode | null;
 }
 
-export default function ElectricityMap({ searchCity, onClearSearch, onSelectNode, selectedNode }: ElectricityMapProps) {
+export default function ElectricityMap({ nodes, flyTo, onClearFlyTo, onSelectNode, selectedNode }: ElectricityMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
   const markersRef = useRef<Record<string, L.Marker>>({});
+  const nodesRef = useRef<DbNode[]>([]);
 
   const onSelectNodeRef = useRef(onSelectNode);
   onSelectNodeRef.current = onSelectNode;
 
+  // Initialize map once
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
 
@@ -46,20 +50,6 @@ export default function ElectricityMap({ searchCity, onClearSearch, onSelectNode
 
     L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-    powerNodes.forEach((node) => {
-      const marker = L.marker([node.lat, node.lng], {
-        icon: createNodeIcon(node.status),
-      });
-
-      marker.on('click', () => {
-        const px = map.latLngToContainerPoint([node.lat, node.lng]);
-        onSelectNodeRef.current(node, { x: px.x, y: px.y });
-      });
-
-      marker.addTo(map);
-      markersRef.current[node.id] = marker;
-    });
-
     mapRef.current = map;
 
     return () => {
@@ -69,26 +59,61 @@ export default function ElectricityMap({ searchCity, onClearSearch, onSelectNode
     };
   }, []);
 
-  useEffect(() => {
-    if (searchCity && cityCoords[searchCity] && mapRef.current) {
-      mapRef.current.flyTo(cityCoords[searchCity], 12, { duration: 1.5 });
-      onClearSearch();
-    }
-  }, [searchCity, onClearSearch]);
-
+  // Sync markers with nodes from database
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
 
-    powerNodes.forEach((node) => {
-      const marker = markersRef.current[node.id];
-      if (!marker) return;
-      marker.setIcon(createNodeIcon(node.status, selectedNode?.id === node.id));
+    nodesRef.current = nodes;
+
+    // Add new markers, update existing
+    const currentIds = new Set<string>();
+    nodes.forEach((node) => {
+      currentIds.add(node.id);
+      const existing = markersRef.current[node.id];
+
+      if (existing) {
+        // Update icon if status changed
+        existing.setIcon(createNodeIcon(node.status, selectedNode?.id === node.id));
+      } else {
+        // Create new marker
+        const marker = L.marker([node.latitude, node.longitude], {
+          icon: createNodeIcon(node.status, selectedNode?.id === node.id),
+        });
+
+        marker.on('click', () => {
+          const currentNode = nodesRef.current.find(n => n.id === node.id) || node;
+          const px = map.latLngToContainerPoint([currentNode.latitude, currentNode.longitude]);
+          onSelectNodeRef.current(currentNode, { x: px.x, y: px.y });
+        });
+
+        marker.addTo(map);
+        markersRef.current[node.id] = marker;
+      }
     });
 
-    if (selectedNode) {
-      map.flyTo([selectedNode.lat, selectedNode.lng], Math.max(map.getZoom(), 11), { duration: 0.8 });
+    // Remove markers no longer in data
+    Object.keys(markersRef.current).forEach((id) => {
+      if (!currentIds.has(id)) {
+        markersRef.current[id].remove();
+        delete markersRef.current[id];
+      }
+    });
+  }, [nodes, selectedNode]);
+
+  // Handle flyTo
+  useEffect(() => {
+    if (flyTo && mapRef.current) {
+      mapRef.current.flyTo([flyTo.lat, flyTo.lng], flyTo.zoom, { duration: 1.5 });
+      onClearFlyTo();
     }
+  }, [flyTo, onClearFlyTo]);
+
+  // Fly to selected node
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !selectedNode) return;
+    map.flyTo([selectedNode.latitude, selectedNode.longitude], Math.max(map.getZoom(), 11), { duration: 0.8 });
   }, [selectedNode]);
 
   return <div ref={containerRef} className="absolute inset-0" aria-label="Electricity map" />;
