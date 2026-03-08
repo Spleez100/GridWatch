@@ -6,6 +6,7 @@ import type { DbNode } from '@/hooks/useGridData';
 interface Props {
   nodes: DbNode[];
   onFlyTo: (lat: number, lng: number, zoom: number) => void;
+  onClose: () => void;
 }
 
 interface DiscoGroup {
