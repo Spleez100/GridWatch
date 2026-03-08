@@ -39,6 +39,7 @@ interface ElectricityMapProps {
   onClearFlyTo: () => void;
   onSelectNode: (node: DbNode, pixel?: { x: number; y: number }) => void;
   selectedNode: DbNode | null;
+  onCenterChange?: (lat: number, lng: number) => void;
 }
 
 const ElectricityMap = forwardRef<ElectricityMapHandle, ElectricityMapProps>(({ nodes, flyTo, onClearFlyTo, onSelectNode, selectedNode }, ref) => {
