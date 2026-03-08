@@ -2,17 +2,23 @@ import { useEffect, useRef, useImperativeHandle, forwardRef } from 'react';
 import L from 'leaflet';
 import { DbNode, statusToColor } from '@/hooks/useGridData';
 
-function createNodeIcon(status: string, severity: string = 'LOW', isSelected: boolean = false) {
+function stationShape(stationType: string): { shape: string; label: string } {
+  if (stationType === 'transmission') return { shape: 'diamond', label: 'T' };
+  if (stationType === 'generation') return { shape: 'hexagon', label: 'G' };
+  return { shape: 'circle', label: 'D' };
+}
+
+function createNodeIcon(status: string, severity: string = 'LOW', isSelected: boolean = false, stationType: string = 'distribution') {
   const color = statusToColor(status);
   const isCritical = status === 'OUTAGE' && (severity === 'CRITICAL' || severity === 'HIGH');
-  const size = isSelected ? 30 : 26;
+  const size = isSelected ? 32 : stationType === 'transmission' ? 28 : stationType === 'generation' ? 26 : 24;
   const statusClass = `status-${color}${isCritical ? ' status-critical' : ''}`;
-  const icon = color === 'green' ? '✓' : color === 'red' ? '!' : '⚡';
+  const { shape, label } = stationShape(stationType);
 
   return L.divIcon({
     className: '',
-    html: `<div class="node-icon-marker${isSelected ? ' selected' : ''}" style="width:${size}px;height:${size}px;">
-      <div class="marker-icon ${statusClass}">${icon}</div>
+    html: `<div class="node-icon-marker ${shape}${isSelected ? ' selected' : ''}" style="width:${size}px;height:${size}px;">
+      <div class="marker-icon ${statusClass}">${label}</div>
     </div>`,
     iconSize: [size, size],
     iconAnchor: [size / 2, size / 2],
