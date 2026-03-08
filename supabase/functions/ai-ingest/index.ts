@@ -264,6 +264,9 @@ CONFIDENCE RULES:
                               "outage_detected",
                               "power_restored",
                               "power_fluctuation",
+                              "TRANSFORMER_FAILURE",
+                              "FEEDER_FAILURE",
+                              "INFRASTRUCTURE_FAILURE",
                             ],
                           },
                           severity: {
