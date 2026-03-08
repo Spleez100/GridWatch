@@ -21,9 +21,13 @@ export type Database = {
           created_at: string
           event_type: string
           id: string
+          location: string | null
           node_id: string | null
           node_name: string | null
           raw_extraction: Json | null
+          severity: string
+          signal_count: number
+          source_platform: string
           source_query: string | null
           source_snippet: string | null
           state: string | null
@@ -34,9 +38,13 @@ export type Database = {
           created_at?: string
           event_type: string
           id?: string
+          location?: string | null
           node_id?: string | null
           node_name?: string | null
           raw_extraction?: Json | null
+          severity?: string
+          signal_count?: number
+          source_platform?: string
           source_query?: string | null
           source_snippet?: string | null
           state?: string | null
@@ -47,9 +55,13 @@ export type Database = {
           created_at?: string
           event_type?: string
           id?: string
+          location?: string | null
           node_id?: string | null
           node_name?: string | null
           raw_extraction?: Json | null
+          severity?: string
+          signal_count?: number
+          source_platform?: string
           source_query?: string | null
           source_snippet?: string | null
           state?: string | null
@@ -144,6 +156,7 @@ export type Database = {
           longitude: number
           name: string
           report_count: number
+          severity: string
           state: string
           status: string
           tariff_per_kwh: number
@@ -163,6 +176,7 @@ export type Database = {
           longitude: number
           name: string
           report_count?: number
+          severity?: string
           state: string
           status?: string
           tariff_per_kwh?: number
@@ -182,6 +196,7 @@ export type Database = {
           longitude?: number
           name?: string
           report_count?: number
+          severity?: string
           state?: string
           status?: string
           tariff_per_kwh?: number
