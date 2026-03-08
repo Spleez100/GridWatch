@@ -187,8 +187,18 @@ CRITICAL RULES:
 
     // ── Step 2: AI extraction with severity classification ─────
     const nodeList = nodes
-      .map((n) => `${n.name} (${n.city}, ${n.state})`)
+      .map((n) => `${n.name} [${n.city}, ${n.state}]`)
       .join("; ");
+
+    // Build a city-to-station mapping for better AI matching
+    const cityStationMap: Record<string, string[]> = {};
+    nodes.forEach((n) => {
+      if (!cityStationMap[n.city]) cityStationMap[n.city] = [];
+      cityStationMap[n.city].push(n.name);
+    });
+    const cityMappingHint = Object.entries(cityStationMap)
+      .map(([city, stations]) => `${city}: ${stations.join(", ")}`)
+      .join("\n");
 
     const extractionResponse = await fetch(
       "https://ai.gateway.lovable.dev/v1/chat/completions",
