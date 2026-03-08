@@ -8,10 +8,31 @@ const corsHeaders = {
 
 // Nigerian electricity keywords for Perplexity search
 const SEARCH_QUERIES = [
-  "Nigeria power outage today electricity NEPA",
-  "Nigeria light go no light power cut today",
-  "PHCN NEPA electricity outage restoration Nigeria today",
-  "DisCo power supply Nigeria outage today Eko Ikeja Abuja",
+  // DisCo-specific queries
+  "Eko Electricity EKEDC power outage Lagos today",
+  "Ikeja Electric IE power outage restoration Lagos today",
+  "Abuja Electricity AEDC power outage today",
+  "Ibadan Electricity IBEDC power outage today",
+  "Enugu Electricity EEDC power outage today",
+  "Port Harcourt Electricity PHED power outage today",
+  "Kaduna Electric power outage today",
+  "Jos Electricity JEDC power outage today",
+  "Kano Electricity KEDCO power outage today",
+  "Benin Electricity BEDC power outage today",
+  "Yola Electricity YEDC power outage today",
+  // Social media / hashtag-style queries
+  "#LightUp #DarknessInNigeria Nigeria electricity outage today",
+  "#NoPowerSupply #NEPA Nigeria power outage light today",
+  "site:twitter.com OR site:x.com Nigeria no light power outage today",
+  // Nigerian slang / pidgin queries
+  "\"no light\" OR \"light don go\" OR \"nepa don take light\" Nigeria today",
+  "\"light don come\" OR \"power don restore\" Nigeria electricity today",
+  "\"blackout\" OR \"power failure\" Nigeria electricity today 2026",
+  // TCN / national grid queries
+  "TCN national grid collapse Nigeria today",
+  "Transmission Company Nigeria grid failure power today",
+  // Telegram / community signals
+  "Nigeria electricity community report outage restoration today",
 ];
 
 interface ExtractedEvent {
