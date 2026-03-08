@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useImperativeHandle, forwardRef } from 'react';
 import L from 'leaflet';
 import { DbNode, statusToColor } from '@/hooks/useGridData';
 
@@ -19,6 +19,11 @@ function createNodeIcon(status: string, severity: string = 'LOW', isSelected: bo
   });
 }
 
+export interface ElectricityMapHandle {
+  zoomIn: () => void;
+  zoomOut: () => void;
+}
+
 interface ElectricityMapProps {
   nodes: DbNode[];
   flyTo: { lat: number; lng: number; zoom: number } | null;
@@ -27,11 +32,16 @@ interface ElectricityMapProps {
   selectedNode: DbNode | null;
 }
 
-export default function ElectricityMap({ nodes, flyTo, onClearFlyTo, onSelectNode, selectedNode }: ElectricityMapProps) {
+const ElectricityMap = forwardRef<ElectricityMapHandle, ElectricityMapProps>(({ nodes, flyTo, onClearFlyTo, onSelectNode, selectedNode }, ref) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
   const markersRef = useRef<Record<string, L.Marker>>({});
   const nodesRef = useRef<DbNode[]>([]);
+
+  useImperativeHandle(ref, () => ({
+    zoomIn: () => mapRef.current?.zoomIn(),
+    zoomOut: () => mapRef.current?.zoomOut(),
+  }));
 
   const onSelectNodeRef = useRef(onSelectNode);
   onSelectNodeRef.current = onSelectNode;
@@ -118,4 +128,6 @@ export default function ElectricityMap({ nodes, flyTo, onClearFlyTo, onSelectNod
   }, [selectedNode]);
 
   return <div ref={containerRef} className="absolute inset-0" aria-label="Electricity map" />;
-}
+});
+
+export default ElectricityMap;

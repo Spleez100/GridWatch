@@ -1,6 +1,7 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { AnimatePresence } from 'framer-motion';
-import ElectricityMap from '@/components/ElectricityMap';
+import ElectricityMap, { ElectricityMapHandle } from '@/components/ElectricityMap';
+import { Plus, Minus } from 'lucide-react';
 import SearchBar from '@/components/SearchBar';
 import ScopePanel, { ScopeView } from '@/components/ScopePanel';
 import StatsPanel from '@/components/StatsPanel';
@@ -14,6 +15,7 @@ import { useNodes, useGridStatus, useGridEvents, useReportPower, DbNode } from '
 import { TrendingUp } from 'lucide-react';
 
 const Index = () => {
+  const mapRef = useRef<ElectricityMapHandle>(null);
   const [flyTo, setFlyTo] = useState<{ lat: number; lng: number; zoom: number } | null>(null);
   const [selectedNode, setSelectedNode] = useState<DbNode | null>(null);
   const [nodePixel, setNodePixel] = useState<{ x: number; y: number } | null>(null);
@@ -57,6 +59,7 @@ const Index = () => {
   return (
     <div className="h-screen w-screen bg-background overflow-hidden relative">
       <ElectricityMap
+        ref={mapRef}
         nodes={nodes}
         flyTo={flyTo}
         onClearFlyTo={() => setFlyTo(null)}
@@ -107,6 +110,22 @@ const Index = () => {
       </AnimatePresence>
 
       <StatsPanel stats={stats} gridStatus={gridStatus} nodes={nodes} />
+
+      {/* Custom zoom controls */}
+      <div className="absolute bottom-20 right-3 z-[1001] flex flex-col gap-0">
+        <button
+          onClick={() => mapRef.current?.zoomIn()}
+          className="w-8 h-8 flex items-center justify-center bg-card/90 backdrop-blur-xl border border-border/50 rounded-t text-foreground hover:bg-accent/50 transition-colors"
+        >
+          <Plus className="w-4 h-4" />
+        </button>
+        <button
+          onClick={() => mapRef.current?.zoomOut()}
+          className="w-8 h-8 flex items-center justify-center bg-card/90 backdrop-blur-xl border border-border/50 border-t-0 rounded-b text-foreground hover:bg-accent/50 transition-colors"
+        >
+          <Minus className="w-4 h-4" />
+        </button>
+      </div>
 
       <BottomToolbar stats={stats} events={gridEvents} gridStatus={gridStatus} nodes={nodes} />
 
