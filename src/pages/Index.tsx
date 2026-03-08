@@ -12,7 +12,7 @@ import ServiceAreasPanel from '@/components/ServiceAreasPanel';
 import PowerTimelinePanel from '@/components/PowerTimelinePanel';
 import PowerLinesPanel from '@/components/PowerLinesPanel';
 import { useNodes, useGridStatus, useGridEvents, useReportPower, DbNode } from '@/hooks/useGridData';
-import { TrendingUp } from 'lucide-react';
+import logoImg from '@/assets/logo.png';
 
 const Index = () => {
   const mapRef = useRef<ElectricityMapHandle>(null);
