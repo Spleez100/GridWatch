@@ -7,6 +7,7 @@ interface Props {
   nodes: DbNode[];
   onSelectNode: (node: DbNode) => void;
   onFlyTo: (lat: number, lng: number, zoom: number) => void;
+  onClose: () => void;
 }
 
 interface AreaGroup {
