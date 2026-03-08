@@ -12,7 +12,7 @@ import ServiceAreasPanel from '@/components/ServiceAreasPanel';
 import PowerTimelinePanel from '@/components/PowerTimelinePanel';
 import PowerLinesPanel from '@/components/PowerLinesPanel';
 import { useNodes, useGridStatus, useGridEvents, useReportPower, DbNode } from '@/hooks/useGridData';
-import { TrendingUp } from 'lucide-react';
+import logoImg from '@/assets/logo.png';
 
 const Index = () => {
   const mapRef = useRef<ElectricityMapHandle>(null);
@@ -77,8 +77,8 @@ const Index = () => {
       ))}
 
       <div className="absolute top-4 left-5 z-[1000]">
-        <div className="w-9 h-9 rounded-md bg-card/80 backdrop-blur border border-border/40 flex items-center justify-center">
-          <TrendingUp className="w-4 h-4 text-foreground" />
+        <div className="w-9 h-9 rounded-md bg-card/80 backdrop-blur border border-border/40 flex items-center justify-center overflow-hidden">
+          <img src={logoImg} alt="Logo" className="w-6 h-6 object-contain" />
         </div>
       </div>
 
