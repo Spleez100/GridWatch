@@ -95,13 +95,14 @@ const Index = () => {
             nodes={nodes}
             onSelectNode={handleSelectNode}
             onFlyTo={handleFlyTo}
+            onClose={() => setActiveView('GRID MAP')}
           />
         )}
         {activeView === 'POWER TIMELINE' && (
-          <PowerTimelinePanel key="power-timeline" events={gridEvents} />
+          <PowerTimelinePanel key="power-timeline" events={gridEvents} onClose={() => setActiveView('GRID MAP')} />
         )}
         {activeView === 'POWER LINES' && (
-          <PowerLinesPanel key="power-lines" nodes={nodes} onFlyTo={handleFlyTo} />
+          <PowerLinesPanel key="power-lines" nodes={nodes} onFlyTo={handleFlyTo} onClose={() => setActiveView('GRID MAP')} />
         )}
       </AnimatePresence>
 

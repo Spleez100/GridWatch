@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
-import { Clock, Zap, ZapOff, AlertTriangle, Radio } from 'lucide-react';
+import { Clock, Zap, ZapOff, AlertTriangle, Radio, X } from 'lucide-react';
 import type { DbGridEvent } from '@/hooks/useGridData';
 
 interface AiEvent {
@@ -19,9 +19,10 @@ interface AiEvent {
 
 interface Props {
   events: DbGridEvent[];
+  onClose: () => void;
 }
 
-export default function PowerTimelinePanel({ events }: Props) {
+export default function PowerTimelinePanel({ events, onClose }: Props) {
   const [aiEvents, setAiEvents] = useState<AiEvent[]>([]);
   const [filter, setFilter] = useState<'all' | 'outages' | 'restored'>('all');
 
@@ -101,7 +102,10 @@ export default function PowerTimelinePanel({ events }: Props) {
       className="absolute top-16 left-5 z-[1000] w-[300px] max-h-[60vh] glass-card rounded-lg overflow-hidden"
     >
       <div className="px-3 pt-3 pb-2 border-b border-border/30">
-        <h3 className="text-[11px] font-semibold text-foreground tracking-widest uppercase mb-2">Power Timeline</h3>
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="text-[11px] font-semibold text-foreground tracking-widest uppercase">Power Timeline</h3>
+          <button onClick={onClose} className="p-1 rounded hover:bg-accent transition-colors"><X className="w-3.5 h-3.5 text-muted-foreground" /></button>
+        </div>
         <div className="flex gap-1">
           {(['all', 'outages', 'restored'] as const).map((f) => (
             <button

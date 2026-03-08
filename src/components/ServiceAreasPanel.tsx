@@ -1,12 +1,13 @@
 import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { MapPin, Zap, ZapOff, AlertTriangle, ChevronRight } from 'lucide-react';
+import { MapPin, Zap, ZapOff, AlertTriangle, ChevronRight, X } from 'lucide-react';
 import type { DbNode } from '@/hooks/useGridData';
 
 interface Props {
   nodes: DbNode[];
   onSelectNode: (node: DbNode) => void;
   onFlyTo: (lat: number, lng: number, zoom: number) => void;
+  onClose: () => void;
 }
 
 interface AreaGroup {
@@ -18,7 +19,7 @@ interface AreaGroup {
   intermittent: number;
 }
 
-export default function ServiceAreasPanel({ nodes, onSelectNode, onFlyTo }: Props) {
+export default function ServiceAreasPanel({ nodes, onSelectNode, onFlyTo, onClose }: Props) {
   const [filter, setFilter] = useState<'all' | 'outage' | 'powered' | 'intermittent'>('all');
   const [expandedCity, setExpandedCity] = useState<string | null>(null);
 
@@ -55,7 +56,10 @@ export default function ServiceAreasPanel({ nodes, onSelectNode, onFlyTo }: Prop
       className="absolute top-16 left-5 z-[1000] w-[280px] max-h-[60vh] glass-card rounded-lg overflow-hidden"
     >
       <div className="px-3 pt-3 pb-2 border-b border-border/30">
-        <h3 className="text-[11px] font-semibold text-foreground tracking-widest uppercase mb-2">Service Areas</h3>
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="text-[11px] font-semibold text-foreground tracking-widest uppercase">Service Areas</h3>
+          <button onClick={onClose} className="p-1 rounded hover:bg-accent transition-colors"><X className="w-3.5 h-3.5 text-muted-foreground" /></button>
+        </div>
         <div className="flex gap-1">
           {(['all', 'outage', 'powered', 'intermittent'] as const).map((f) => (
             <button

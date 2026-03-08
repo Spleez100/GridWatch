@@ -1,11 +1,12 @@
 import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Building2, Zap, ZapOff } from 'lucide-react';
+import { Building2, Zap, ZapOff, X } from 'lucide-react';
 import type { DbNode } from '@/hooks/useGridData';
 
 interface Props {
   nodes: DbNode[];
   onFlyTo: (lat: number, lng: number, zoom: number) => void;
+  onClose: () => void;
 }
 
 interface DiscoGroup {
@@ -16,7 +17,7 @@ interface DiscoGroup {
   intermittent: number;
 }
 
-export default function PowerLinesPanel({ nodes, onFlyTo }: Props) {
+export default function PowerLinesPanel({ nodes, onFlyTo, onClose }: Props) {
   const [expandedDisco, setExpandedDisco] = useState<string | null>(null);
 
   const discos = useMemo(() => {
@@ -42,7 +43,10 @@ export default function PowerLinesPanel({ nodes, onFlyTo }: Props) {
       className="absolute top-16 left-5 z-[1000] w-[280px] max-h-[60vh] glass-card rounded-lg overflow-hidden"
     >
       <div className="px-3 pt-3 pb-2 border-b border-border/30">
-        <h3 className="text-[11px] font-semibold text-foreground tracking-widest uppercase">Power Lines & DisCos</h3>
+        <div className="flex items-center justify-between">
+          <h3 className="text-[11px] font-semibold text-foreground tracking-widest uppercase">Power Lines & DisCos</h3>
+          <button onClick={onClose} className="p-1 rounded hover:bg-accent transition-colors"><X className="w-3.5 h-3.5 text-muted-foreground" /></button>
+        </div>
         <p className="text-[9px] text-muted-foreground mt-1">Distribution companies and coverage areas</p>
       </div>
 
