@@ -1,6 +1,7 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { AnimatePresence } from 'framer-motion';
-import ElectricityMap from '@/components/ElectricityMap';
+import ElectricityMap, { ElectricityMapHandle } from '@/components/ElectricityMap';
+import { Plus, Minus } from 'lucide-react';
 import SearchBar from '@/components/SearchBar';
 import ScopePanel, { ScopeView } from '@/components/ScopePanel';
 import StatsPanel from '@/components/StatsPanel';
