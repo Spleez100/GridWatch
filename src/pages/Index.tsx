@@ -15,6 +15,7 @@ import { useNodes, useGridStatus, useGridEvents, useReportPower, DbNode } from '
 import { TrendingUp } from 'lucide-react';
 
 const Index = () => {
+  const mapRef = useRef<ElectricityMapHandle>(null);
   const [flyTo, setFlyTo] = useState<{ lat: number; lng: number; zoom: number } | null>(null);
   const [selectedNode, setSelectedNode] = useState<DbNode | null>(null);
   const [nodePixel, setNodePixel] = useState<{ x: number; y: number } | null>(null);
