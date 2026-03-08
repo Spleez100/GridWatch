@@ -81,10 +81,13 @@ const Index = () => {
         <span key={`row-${label}`} className="grid-axis-label" style={{ top: `${(i + 1) * 120}px`, left: 8 }}>{label}.</span>
       ))}
 
-      <div className="absolute top-4 left-5 z-[1000] space-y-3">
+      <div className="absolute top-4 left-5 z-[1000]">
         <div className="w-9 h-9 rounded-md glass-panel flex items-center justify-center overflow-hidden">
           <img src={logoImg} alt="Logo" className="w-6 h-6 object-contain" />
         </div>
+      </div>
+
+      <div className="absolute top-4 right-5 z-[1000] mt-12">
         <MiniGlobe center={mapCenter} />
       </div>
 
