@@ -35,12 +35,29 @@ export function useNodes() {
 
   useEffect(() => {
     const fetchNodes = async () => {
-      // Only fetch top-level stations by default (those visible on map)
-      const { data } = await supabase
-        .from('nodes')
-        .select('*')
-        .eq('is_visible_default', true);
-      if (data) setNodes(data);
+      // Fetch all visible nodes using pagination to bypass 1000-row default limit
+      let allNodes: DbNode[] = [];
+      let from = 0;
+      const pageSize = 1000;
+      let hasMore = true;
+
+      while (hasMore) {
+        const { data } = await supabase
+          .from('nodes')
+          .select('*')
+          .eq('is_visible_default', true)
+          .range(from, from + pageSize - 1);
+        
+        if (data && data.length > 0) {
+          allNodes = [...allNodes, ...data];
+          from += pageSize;
+          hasMore = data.length === pageSize;
+        } else {
+          hasMore = false;
+        }
+      }
+
+      setNodes(allNodes);
       setLoading(false);
     };
     fetchNodes();
