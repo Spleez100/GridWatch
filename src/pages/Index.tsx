@@ -75,6 +75,8 @@ const Index = () => {
         <SearchBar nodes={nodes} onSearchCity={handleSearchCity} onSelectNode={handleSelectNode} />
       </div>
 
+      <CriticalAlertsCarousel />
+
       <ScopePanel />
 
       <StatsPanel stats={stats} gridStatus={gridStatus} />

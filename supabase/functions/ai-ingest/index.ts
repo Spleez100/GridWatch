@@ -450,6 +450,9 @@ CONFIDENCE RULES:
           outage_detected: "OUTAGE",
           power_restored: "POWER_AVAILABLE",
           power_fluctuation: "INTERMITTENT",
+          TRANSFORMER_FAILURE: "OUTAGE",
+          FEEDER_FAILURE: "OUTAGE",
+          INFRASTRUCTURE_FAILURE: "OUTAGE",
         };
         const newStatus = statusMap[signal.event_type] || "INTERMITTENT";
 
