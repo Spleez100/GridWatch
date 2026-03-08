@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { MapPin, Zap, ZapOff, AlertTriangle, ChevronRight } from 'lucide-react';
+import { MapPin, Zap, ZapOff, AlertTriangle, ChevronRight, X } from 'lucide-react';
 import type { DbNode } from '@/hooks/useGridData';
 
 interface Props {
