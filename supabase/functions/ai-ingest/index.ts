@@ -109,10 +109,11 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    // Fetch all nodes for matching
+    // Fetch all nodes for matching (exclude UNKNOWN status nodes)
     const { data: nodes } = await supabase
       .from("nodes")
-      .select("id, name, city, state, status, severity");
+      .select("id, name, city, state, status, severity, infrastructure_level, feeder_name, parent_node_id")
+      .neq("status", "UNKNOWN");
     if (!nodes || nodes.length === 0) {
       return new Response(JSON.stringify({ message: "No nodes found" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
