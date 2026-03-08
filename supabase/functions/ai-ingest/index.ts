@@ -458,6 +458,8 @@ CONFIDENCE RULES:
         source_query: queries.join(" | "),
         source_snippet: signal.snippet,
         source_platform: signal.source_platform,
+        source_handle: signal.source_handle || null,
+        source_url: signal.source_url || (allCitations.length > 0 ? allCitations[0] : null),
         confidence: signal.confidence,
         signal_count: signal.multiple_reports ? 2 : 1,
         raw_extraction: signal as unknown as Record<string, unknown>,
