@@ -14,6 +14,56 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_events: {
+        Row: {
+          city: string | null
+          confidence: number
+          created_at: string
+          event_type: string
+          id: string
+          node_id: string | null
+          node_name: string | null
+          raw_extraction: Json | null
+          source_query: string | null
+          source_snippet: string | null
+          state: string | null
+        }
+        Insert: {
+          city?: string | null
+          confidence?: number
+          created_at?: string
+          event_type: string
+          id?: string
+          node_id?: string | null
+          node_name?: string | null
+          raw_extraction?: Json | null
+          source_query?: string | null
+          source_snippet?: string | null
+          state?: string | null
+        }
+        Update: {
+          city?: string | null
+          confidence?: number
+          created_at?: string
+          event_type?: string
+          id?: string
+          node_id?: string | null
+          node_name?: string | null
+          raw_extraction?: Json | null
+          source_query?: string | null
+          source_snippet?: string | null
+          state?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_events_node_id_fkey"
+            columns: ["node_id"]
+            isOneToOne: false
+            referencedRelation: "nodes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       grid_events: {
         Row: {
           city: string | null
