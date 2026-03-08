@@ -87,12 +87,9 @@ const Index = () => {
         </div>
       </div>
 
-      <div className="absolute top-4 right-5 z-[1000] mt-12">
-        <MiniGlobe center={mapCenter} />
-      </div>
-
       <div className="absolute top-4 right-5 z-[1000] flex items-start gap-3">
         <SearchBar nodes={nodes} onSearchCity={handleSearchCity} onSelectNode={handleSelectNode} />
+        <MiniGlobe center={mapCenter} />
       </div>
 
       <CriticalAlertsCarousel />
