@@ -91,7 +91,7 @@ const Index = () => {
         <MiniGlobe center={mapCenter} />
       </div>
 
-      <div className="absolute top-4 right-5 z-[1000]">
+      <div className="absolute top-4 right-5 z-[1000] flex items-start gap-3">
         <SearchBar nodes={nodes} onSearchCity={handleSearchCity} onSelectNode={handleSelectNode} />
       </div>
 
