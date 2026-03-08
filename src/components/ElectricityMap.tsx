@@ -95,7 +95,7 @@ const ElectricityMap = forwardRef<ElectricityMapHandle, ElectricityMapProps>(({ 
       } else {
         // Create new marker
         const marker = L.marker([node.latitude, node.longitude], {
-          icon: createNodeIcon(node.status, (node as any).severity || 'LOW', selectedNode?.id === node.id),
+          icon: createNodeIcon(node.status, (node as any).severity || 'LOW', selectedNode?.id === node.id, node.station_type),
         });
 
         marker.on('click', () => {
