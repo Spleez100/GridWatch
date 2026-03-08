@@ -281,9 +281,6 @@ export default function CriticalAlertsCarousel() {
                                 <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-[7px]">
                                   <span className="text-muted-foreground">Severity: <span className={severityColor(event.severity)}>{event.severity}</span></span>
                                   <span className="text-muted-foreground">Confidence: {event.confidence}%</span>
-                                  {event.source_platform && (
-                                    <span className="text-muted-foreground">Source: {event.source_platform}</span>
-                                  )}
                                 </div>
                               </div>
                             </motion.div>
