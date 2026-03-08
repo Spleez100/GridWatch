@@ -59,6 +59,7 @@ const Index = () => {
   return (
     <div className="h-screen w-screen bg-background overflow-hidden relative">
       <ElectricityMap
+        ref={mapRef}
         nodes={nodes}
         flyTo={flyTo}
         onClearFlyTo={() => setFlyTo(null)}
