@@ -19,6 +19,7 @@ interface AiEvent {
 
 interface Props {
   events: DbGridEvent[];
+  onClose: () => void;
 }
 
 export default function PowerTimelinePanel({ events }: Props) {
