@@ -14,12 +14,17 @@ const QUERY_GROUPS = {
     '("no light in" OR "no light since" OR "no light again") site:x.com',
     '("power outage" OR "electricity outage" OR "power failure") Nigeria today',
     '("light no dey" OR "power never come" OR "light never come") Nigeria',
-    '("transformer blown" OR "transformer fault" OR "feeder down") Nigeria',
     '("no electricity" OR "blackout") Nigeria today',
   ],
   twitter_restoration: [
     '("light don come" OR "power don restore" OR "electricity restored") Nigeria',
     '("power restored" OR "light is back") Nigeria today',
+  ],
+  infrastructure: [
+    '("transformer blown" OR "transformer blow" OR "transformer spoil") Nigeria',
+    '("transformer burnt" OR "transformer fault") Nigeria today',
+    '("feeder down" OR "feeder fault" OR "feeder tripped") Nigeria today',
+    '("substation failure" OR "substation down") Nigeria electricity',
   ],
   disco_specific: [
     "Eko Electricity EKEDC power outage Lagos today",
@@ -35,11 +40,13 @@ const QUERY_GROUPS = {
     "Yola Electricity YEDC power outage today",
   ],
   location_specific: [
-    "no light in Lagos Surulere Yaba Ajah Lekki today",
-    "no light in Abuja Wuse Garki Maitama today",
-    "no light in Port Harcourt Aba Enugu today",
-    "no light in Ibadan Ogbomosho Ilorin today",
-    "no light in Kano Kaduna Jos today",
+    "no light in Lagos Surulere Yaba Ajah Lekki Ikeja today",
+    "no light in Abuja Wuse Garki Maitama Gwarinpa Kubwa today",
+    "no light in Port Harcourt Rumuokoro Aba Uyo today",
+    "no light in Ibadan Bodija Ogbomosho Ilorin Osogbo today",
+    "no light in Kano Kaduna Jos Maiduguri Bauchi today",
+    "no light in Benin Warri Asaba Onitsha Enugu today",
+    "no light in Abeokuta Akure Ado-Ekiti Calabar Umuahia today",
   ],
   hashtags: [
     "#LightUp #DarknessInNigeria power outage today",
