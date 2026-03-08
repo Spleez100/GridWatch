@@ -17,7 +17,7 @@ interface DiscoGroup {
   intermittent: number;
 }
 
-export default function PowerLinesPanel({ nodes, onFlyTo }: Props) {
+export default function PowerLinesPanel({ nodes, onFlyTo, onClose }: Props) {
   const [expandedDisco, setExpandedDisco] = useState<string | null>(null);
 
   const discos = useMemo(() => {
