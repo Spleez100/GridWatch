@@ -160,14 +160,6 @@ export default function PowerTimelinePanel({ events, onClose }: Props) {
                         </div>
                         <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
                           <span className="text-[8px] text-muted-foreground">{timeAgo(item.time)}</span>
-                          {item.handle && (
-                            <span className="text-[7px] text-primary">
-                              {item.platform === 'twitter' ? `@${item.handle.replace('@', '')}` : item.handle}
-                            </span>
-                          )}
-                          {item.platform && (
-                            <span className="text-[7px] text-muted-foreground/60">{platformLabels[item.platform] || item.platform}</span>
-                          )}
                           {item.severity && (
                             <span className={`text-[7px] font-bold tracking-wider ${
                               item.severity === 'CRITICAL' ? 'text-destructive' : item.severity === 'HIGH' ? 'text-warning' : 'text-muted-foreground'
