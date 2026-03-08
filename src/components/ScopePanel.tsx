@@ -11,7 +11,7 @@ interface Props {
 
 export default function ScopePanel({ activeView, onViewChange }: Props) {
   return (
-    <div className="absolute top-16 left-5 z-[1001] space-y-4">
+    <div className="absolute top-16 left-5 z-[900] space-y-4">
       <span className="text-xs font-semibold text-foreground tracking-widest">[GRID SCOPE]</span>
       <div className="space-y-1.5">
         {scopeItems.map((item) => (
