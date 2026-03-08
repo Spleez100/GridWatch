@@ -79,7 +79,7 @@ export default function ElectricityMap({ nodes, flyTo, onClearFlyTo, onSelectNod
       } else {
         // Create new marker
         const marker = L.marker([node.latitude, node.longitude], {
-          icon: createNodeIcon(node.status, selectedNode?.id === node.id),
+          icon: createNodeIcon(node.status, (node as any).severity || 'LOW', selectedNode?.id === node.id),
         });
 
         marker.on('click', () => {
