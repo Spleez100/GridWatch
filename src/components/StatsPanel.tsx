@@ -129,9 +129,9 @@ export default function StatsPanel({ stats, gridStatus, nodes = [] }: Props) {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 40 }}
             transition={{ duration: 0.2 }}
-            className="absolute top-16 right-5 z-[1100] w-[320px] max-h-[calc(100vh-140px)] overflow-y-auto glass-card rounded-lg shadow-2xl shadow-black/50"
+            className="absolute top-16 right-5 z-[1100] w-[320px] max-h-[calc(100vh-140px)] overflow-y-auto glass-card rounded-lg"
           >
-            <div className="sticky top-0 bg-card/95 backdrop-blur-xl px-4 pt-4 pb-3 border-b border-border/30 flex items-center justify-between">
+            <div className="sticky top-0 glass-card px-4 pt-4 pb-3 border-b border-border/30 flex items-center justify-between rounded-t-lg">
               <h3 className="text-xs font-semibold text-foreground tracking-wider">Grid Details</h3>
               <button onClick={() => setShowDetails(false)} className="p-1 rounded hover:bg-accent transition-colors">
                 <X className="w-3.5 h-3.5 text-muted-foreground" />
