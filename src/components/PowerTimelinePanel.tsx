@@ -22,7 +22,7 @@ interface Props {
   onClose: () => void;
 }
 
-export default function PowerTimelinePanel({ events }: Props) {
+export default function PowerTimelinePanel({ events, onClose }: Props) {
   const [aiEvents, setAiEvents] = useState<AiEvent[]>([]);
   const [filter, setFilter] = useState<'all' | 'outages' | 'restored'>('all');
 
