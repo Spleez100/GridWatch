@@ -128,4 +128,6 @@ const ElectricityMap = forwardRef<ElectricityMapHandle, ElectricityMapProps>(({ 
   }, [selectedNode]);
 
   return <div ref={containerRef} className="absolute inset-0" aria-label="Electricity map" />;
-}
+});
+
+export default ElectricityMap;
