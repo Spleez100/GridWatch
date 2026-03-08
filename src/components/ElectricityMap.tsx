@@ -42,7 +42,7 @@ interface ElectricityMapProps {
   onCenterChange?: (lat: number, lng: number) => void;
 }
 
-const ElectricityMap = forwardRef<ElectricityMapHandle, ElectricityMapProps>(({ nodes, flyTo, onClearFlyTo, onSelectNode, selectedNode }, ref) => {
+const ElectricityMap = forwardRef<ElectricityMapHandle, ElectricityMapProps>(({ nodes, flyTo, onClearFlyTo, onSelectNode, selectedNode, onCenterChange }, ref) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
   const markersRef = useRef<Record<string, L.Marker>>({});
