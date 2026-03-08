@@ -123,6 +123,8 @@
   border: none !important;
   margin-right: 12px !important;
   margin-bottom: 80px !important;
+  z-index: 1001 !important;
+  pointer-events: auto !important;
 }
 
 .leaflet-control-zoom a {
