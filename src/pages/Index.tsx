@@ -132,6 +132,19 @@ const Index = () => {
       <BottomToolbar stats={stats} events={gridEvents} gridStatus={gridStatus} nodes={nodes} />
 
       <AnimatePresence>
+        {infrastructureParent && (
+          <InfrastructurePanel
+            parentNode={infrastructureParent}
+            onClose={() => setInfrastructureParent(null)}
+            onSelectChild={(child) => {
+              handleSelectNode(child);
+              setInfrastructureParent(child);
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
         {selectedNode && (
           <NodeDetailCard
             node={selectedNode}
@@ -139,6 +152,7 @@ const Index = () => {
             onClose={() => { setSelectedNode(null); setNodePixel(null); }}
             onReport={handleReport}
             submitting={submitting}
+            onViewInfrastructure={() => setInfrastructureParent(selectedNode)}
           />
         )}
       </AnimatePresence>
