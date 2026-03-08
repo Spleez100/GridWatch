@@ -141,6 +141,45 @@ export type Database = {
         }
         Relationships: []
       }
+      locations: {
+        Row: {
+          city: string | null
+          created_at: string
+          id: string
+          latitude: number
+          lga: string | null
+          longitude: number
+          name: string
+          population_estimate: number | null
+          state: string
+          type: string
+        }
+        Insert: {
+          city?: string | null
+          created_at?: string
+          id?: string
+          latitude: number
+          lga?: string | null
+          longitude: number
+          name: string
+          population_estimate?: number | null
+          state: string
+          type?: string
+        }
+        Update: {
+          city?: string | null
+          created_at?: string
+          id?: string
+          latitude?: number
+          lga?: string | null
+          longitude?: number
+          name?: string
+          population_estimate?: number | null
+          state?: string
+          type?: string
+        }
+        Relationships: []
+      }
       nodes: {
         Row: {
           area_type: string
@@ -153,6 +192,7 @@ export type Database = {
           id: string
           last_outage: string | null
           latitude: number
+          location_id: string | null
           longitude: number
           name: string
           report_count: number
@@ -173,6 +213,7 @@ export type Database = {
           id?: string
           last_outage?: string | null
           latitude: number
+          location_id?: string | null
           longitude: number
           name: string
           report_count?: number
@@ -193,6 +234,7 @@ export type Database = {
           id?: string
           last_outage?: string | null
           latitude?: number
+          location_id?: string | null
           longitude?: number
           name?: string
           report_count?: number
@@ -202,7 +244,15 @@ export type Database = {
           tariff_per_kwh?: number
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "nodes_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       reports: {
         Row: {
