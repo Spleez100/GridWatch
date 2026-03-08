@@ -204,9 +204,12 @@ export type Database = {
           report_count: number
           severity: string
           state: string
+          station_type: string
           status: string
           tariff_per_kwh: number
+          tcn_region: string
           updated_at: string
+          voltage_class: string
         }
         Insert: {
           area_type: string
@@ -225,9 +228,12 @@ export type Database = {
           report_count?: number
           severity?: string
           state: string
+          station_type?: string
           status?: string
           tariff_per_kwh?: number
+          tcn_region?: string
           updated_at?: string
+          voltage_class?: string
         }
         Update: {
           area_type?: string
@@ -246,9 +252,12 @@ export type Database = {
           report_count?: number
           severity?: string
           state?: string
+          station_type?: string
           status?: string
           tariff_per_kwh?: number
+          tcn_region?: string
           updated_at?: string
+          voltage_class?: string
         }
         Relationships: [
           {

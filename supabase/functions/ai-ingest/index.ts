@@ -187,8 +187,18 @@ CRITICAL RULES:
 
     // ── Step 2: AI extraction with severity classification ─────
     const nodeList = nodes
-      .map((n) => `${n.name} (${n.city}, ${n.state})`)
+      .map((n) => `${n.name} [${n.city}, ${n.state}]`)
       .join("; ");
+
+    // Build a city-to-station mapping for better AI matching
+    const cityStationMap: Record<string, string[]> = {};
+    nodes.forEach((n) => {
+      if (!cityStationMap[n.city]) cityStationMap[n.city] = [];
+      cityStationMap[n.city].push(n.name);
+    });
+    const cityMappingHint = Object.entries(cityStationMap)
+      .map(([city, stations]) => `${city}: ${stations.join(", ")}`)
+      .join("\n");
 
     const extractionResponse = await fetch(
       "https://ai.gateway.lovable.dev/v1/chat/completions",
@@ -205,7 +215,18 @@ CRITICAL RULES:
               role: "system",
               content: `You are a Nigerian electricity outage signal extraction engine.
 
-KNOWN MONITORING NODES: ${nodeList}
+THESE ARE REAL TCN (Transmission Company of Nigeria) STATIONS being monitored:
+${nodeList}
+
+CITY-TO-STATION MAPPING (use this to map reports mentioning areas to their nearest TCN station):
+${cityMappingHint}
+
+IMPORTANT MATCHING RULES:
+- When a report mentions a neighborhood/area, map it to the NEAREST TCN substation in that city
+- Example: "no light in Surulere Lagos" → map to "Itire 132/33kV S/S" or "Ijora 132/33kV S/S" (Lagos substations near Surulere)
+- Example: "outage in Wuse Abuja" → map to "Central Area 132/33kV S/S" or "Katampe 132/33kV S/S"
+- For area-wide reports, match to the main transmission station (330kV) for that city
+- Always use the EXACT station name from the list above when matching
 
 NIGERIAN ELECTRICITY LANGUAGE:
 Outage: "no light", "light don go", "nepa don take light", "no power since", "light never come", "power never come", "blackout", "power failure", "grid collapse"
@@ -599,7 +620,6 @@ function findBestNodeMatch(
   const city = signal.city.toLowerCase();
   const state = signal.state.toLowerCase();
 
-  // Score each node
   let bestNode: (typeof nodes)[0] | null = null;
   let bestScore = 0;
 
@@ -609,20 +629,32 @@ function findBestNodeMatch(
     const nCity = node.city.toLowerCase();
     const nState = node.state.toLowerCase();
 
-    // Exact name match
-    if (nName === loc) score += 100;
-    // Name contains location
-    else if (nName.includes(loc) || loc.includes(nName)) score += 70;
+    // Extract station base name (before voltage class)
+    const baseName = nName.split(/\s+\d+\//).at(0)?.trim() || nName;
+
+    // Exact station name match (AI should return exact names)
+    if (nName === loc || baseName === loc) score += 100;
+    // Station name contains location or vice versa
+    else if (nName.includes(loc) || loc.includes(baseName)) score += 80;
+    // Partial word match (e.g., "ikeja" matches "Ikeja West 330/132kV T/S")
+    else {
+      const locWords = loc.split(/[\s,]+/).filter(w => w.length > 2);
+      const nameWords = baseName.split(/[\s,]+/).filter(w => w.length > 2);
+      const wordMatches = locWords.filter(w => nameWords.some(nw => nw.includes(w) || w.includes(nw)));
+      if (wordMatches.length > 0) score += 40 + (wordMatches.length * 15);
+    }
 
     // City match
     if (nCity === city) score += 50;
     else if (nCity.includes(city) || city.includes(nCity)) score += 30;
-    // Location matches city
-    if (nCity === loc || nCity.includes(loc) || loc.includes(nCity))
-      score += 40;
+    // Location string matches city name
+    if (nCity === loc || nCity.includes(loc) || loc.includes(nCity)) score += 35;
 
     // State match
     if (nState === state) score += 20;
+
+    // Prefer transmission stations (330kV) for area-wide reports
+    if (nName.includes("330") && score > 0) score += 5;
 
     if (score > bestScore) {
       bestScore = score;
