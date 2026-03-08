@@ -231,7 +231,10 @@ CONFIDENCE RULES:
 - Multiple independent reports = higher confidence
 - Specific location = higher confidence
 - Infrastructure damage mentioned = automatically higher confidence (70+)
-- Note source platform (Twitter/X, Facebook, Reddit, news, forum)`,
+- Note source platform (Twitter/X, Facebook, Reddit, news, forum)
+- ALWAYS extract the @handle or display name of the person who posted
+- ALWAYS extract the source URL if available from citations
+- Do NOT report old events (>24 hours) as current`,
             },
             {
               role: "user",
