@@ -24,7 +24,7 @@ export default function SearchBar({ nodes, onSearchCity, onSelectNode }: Props) 
           onFocus={() => setFocused(true)}
           onBlur={() => setTimeout(() => setFocused(false), 200)}
           placeholder="Search Location or Feeder"
-          className="w-full pl-8 pr-3 py-2 bg-card/80 backdrop-blur border border-border/40 rounded text-[11px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/30 tracking-wider"
+          className="w-full pl-8 pr-3 py-2 glass-panel rounded text-[11px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/30 tracking-wider"
         />
       </div>
       {focused && results.length > 0 && (
