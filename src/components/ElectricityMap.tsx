@@ -2,10 +2,11 @@ import { useEffect, useRef } from 'react';
 import L from 'leaflet';
 import { DbNode, statusToColor } from '@/hooks/useGridData';
 
-function createNodeIcon(status: string, isSelected: boolean = false) {
+function createNodeIcon(status: string, severity: string = 'LOW', isSelected: boolean = false) {
   const color = statusToColor(status);
+  const isCritical = status === 'OUTAGE' && (severity === 'CRITICAL' || severity === 'HIGH');
   const size = isSelected ? 30 : 26;
-  const statusClass = `status-${color}`;
+  const statusClass = `status-${color}${isCritical ? ' status-critical' : ''}`;
   const icon = color === 'green' ? '✓' : color === 'red' ? '!' : '⚡';
 
   return L.divIcon({
