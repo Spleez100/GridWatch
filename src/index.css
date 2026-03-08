@@ -209,6 +209,12 @@
   animation: pulse-soft 2s ease-in-out infinite;
 }
 
+.node-icon-marker .marker-icon.status-red.status-critical {
+  background: hsl(0 90% 50%);
+  color: white;
+  animation: blink-critical 1s ease-in-out infinite;
+}
+
 .node-icon-marker .marker-icon.status-yellow {
   background: hsl(45 93% 47%);
   color: black;
