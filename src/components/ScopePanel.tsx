@@ -1,8 +1,11 @@
-import { useState } from 'react';
-
 export type ScopeView = 'GRID MAP' | 'POWER TIMELINE' | 'SERVICE AREA' | 'POWER LINES' | null;
 
-const scopeItems: ScopeView[] = ['GRID MAP', 'POWER TIMELINE', 'SERVICE AREA', 'POWER LINES'];
+const scopeItems: { key: ScopeView; label: string }[] = [
+  { key: 'GRID MAP', label: 'Map' },
+  { key: 'POWER TIMELINE', label: 'Timeline' },
+  { key: 'SERVICE AREA', label: 'Areas' },
+  { key: 'POWER LINES', label: 'Power Lines' },
+];
 
 interface Props {
   activeView: ScopeView;
@@ -11,20 +14,20 @@ interface Props {
 
 export default function ScopePanel({ activeView, onViewChange }: Props) {
   return (
-    <div className="absolute top-16 left-5 z-[900] space-y-4">
-      <span className="text-xs font-semibold text-foreground tracking-widest">[GRID SCOPE]</span>
-      <div className="space-y-1.5">
+    <div className="absolute top-16 left-5 z-[900] space-y-3">
+      <span className="text-[11px] font-semibold text-foreground tracking-wider">View</span>
+      <div className="space-y-1">
         {scopeItems.map((item) => (
           <button
-            key={item}
-            onClick={() => onViewChange(activeView === item ? 'GRID MAP' : item)}
+            key={item.key}
+            onClick={() => onViewChange(activeView === item.key ? 'GRID MAP' : item.key)}
             className={`block text-[11px] tracking-wider transition-colors ${
-              activeView === item
-                ? 'text-foreground'
+              activeView === item.key
+                ? 'text-foreground font-medium'
                 : 'text-muted-foreground hover:text-foreground/70'
             }`}
           >
-            {item}
+            {item.label}
           </button>
         ))}
       </div>
