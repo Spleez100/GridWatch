@@ -18,10 +18,10 @@ export default function ScopePanel({ activeView, onViewChange }: Props) {
           <button
             key={item}
             onClick={() => onViewChange(activeView === item ? 'GRID MAP' : item)}
-            className={`block text-[11px] tracking-wider transition-colors ${
+            className={`block text-[11px] tracking-wider px-2.5 py-1 rounded transition-all ${
               activeView === item
-                ? 'text-foreground'
-                : 'text-muted-foreground hover:text-foreground/70'
+                ? 'glass-tab-active text-foreground font-medium'
+                : 'text-muted-foreground hover:text-foreground/70 hover:glass-tab'
             }`}
           >
             {item}

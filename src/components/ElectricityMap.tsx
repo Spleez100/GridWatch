@@ -39,9 +39,10 @@ interface ElectricityMapProps {
   onClearFlyTo: () => void;
   onSelectNode: (node: DbNode, pixel?: { x: number; y: number }) => void;
   selectedNode: DbNode | null;
+  onCenterChange?: (lat: number, lng: number) => void;
 }
 
-const ElectricityMap = forwardRef<ElectricityMapHandle, ElectricityMapProps>(({ nodes, flyTo, onClearFlyTo, onSelectNode, selectedNode }, ref) => {
+const ElectricityMap = forwardRef<ElectricityMapHandle, ElectricityMapProps>(({ nodes, flyTo, onClearFlyTo, onSelectNode, selectedNode, onCenterChange }, ref) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
   const markersRef = useRef<Record<string, L.Marker>>({});
@@ -54,6 +55,8 @@ const ElectricityMap = forwardRef<ElectricityMapHandle, ElectricityMapProps>(({ 
 
   const onSelectNodeRef = useRef(onSelectNode);
   onSelectNodeRef.current = onSelectNode;
+  const onCenterChangeRef = useRef(onCenterChange);
+  onCenterChangeRef.current = onCenterChange;
 
   // Initialize map once
   useEffect(() => {
@@ -69,6 +72,11 @@ const ElectricityMap = forwardRef<ElectricityMapHandle, ElectricityMapProps>(({ 
     }).addTo(map);
 
     L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+    map.on('moveend', () => {
+      const c = map.getCenter();
+      onCenterChangeRef.current?.(c.lat, c.lng);
+    });
 
     mapRef.current = map;
 

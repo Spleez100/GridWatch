@@ -156,7 +156,7 @@ export default function BottomToolbar({ stats, events, gridStatus, nodes = [] }:
           ))}
         </div>
 
-        <div className="bg-card/90 backdrop-blur-xl border-t border-border/40 px-5 py-3 flex items-end justify-between gap-6">
+        <div className="glass-card rounded-t-lg px-5 py-3 flex items-end justify-between gap-6">
           <div className="flex items-center gap-3 shrink-0">
             <select
               value={areaFilter}

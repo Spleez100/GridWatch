@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import ElectricityMap, { ElectricityMapHandle } from '@/components/ElectricityMap';
+import MiniGlobe from '@/components/MiniGlobe';
 import { Plus, Minus } from 'lucide-react';
 import SearchBar from '@/components/SearchBar';
 import ScopePanel, { ScopeView } from '@/components/ScopePanel';
@@ -22,6 +23,7 @@ const Index = () => {
   const [nodePixel, setNodePixel] = useState<{ x: number; y: number } | null>(null);
   const [infrastructureParent, setInfrastructureParent] = useState<DbNode | null>(null);
   const [activeView, setActiveView] = useState<ScopeView>('GRID MAP');
+  const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number }>({ lat: 9.0, lng: 7.5 });
 
   const { nodes, loading } = useNodes();
   const gridStatus = useGridStatus();
@@ -67,6 +69,7 @@ const Index = () => {
         onClearFlyTo={() => setFlyTo(null)}
         onSelectNode={handleSelectNode}
         selectedNode={selectedNode}
+        onCenterChange={(lat, lng) => setMapCenter({ lat, lng })}
       />
 
       <div className="grid-overlay" />
@@ -78,10 +81,11 @@ const Index = () => {
         <span key={`row-${label}`} className="grid-axis-label" style={{ top: `${(i + 1) * 120}px`, left: 8 }}>{label}.</span>
       ))}
 
-      <div className="absolute top-4 left-5 z-[1000]">
-        <div className="w-9 h-9 rounded-md bg-card/80 backdrop-blur border border-border/40 flex items-center justify-center overflow-hidden">
+      <div className="absolute top-4 left-5 z-[1000] space-y-3">
+        <div className="w-9 h-9 rounded-md glass-panel flex items-center justify-center overflow-hidden">
           <img src={logoImg} alt="Logo" className="w-6 h-6 object-contain" />
         </div>
+        <MiniGlobe center={mapCenter} />
       </div>
 
       <div className="absolute top-4 right-5 z-[1000]">
@@ -117,13 +121,13 @@ const Index = () => {
       <div className="absolute bottom-20 right-3 z-[1001] flex flex-col gap-0">
         <button
           onClick={() => mapRef.current?.zoomIn()}
-          className="w-8 h-8 flex items-center justify-center bg-card/90 backdrop-blur-xl border border-border/50 rounded-t text-foreground hover:bg-accent/50 transition-colors"
+          className="w-8 h-8 flex items-center justify-center glass-panel rounded-t text-foreground hover:bg-accent/50 transition-colors"
         >
           <Plus className="w-4 h-4" />
         </button>
         <button
           onClick={() => mapRef.current?.zoomOut()}
-          className="w-8 h-8 flex items-center justify-center bg-card/90 backdrop-blur-xl border border-border/50 border-t-0 rounded-b text-foreground hover:bg-accent/50 transition-colors"
+          className="w-8 h-8 flex items-center justify-center glass-panel border-t-0 rounded-b text-foreground hover:bg-accent/50 transition-colors"
         >
           <Minus className="w-4 h-4" />
         </button>
