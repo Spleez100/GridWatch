@@ -7,6 +7,7 @@ import ScopePanel, { ScopeView } from '@/components/ScopePanel';
 import StatsPanel from '@/components/StatsPanel';
 import BottomToolbar from '@/components/BottomToolbar';
 import NodeDetailCard from '@/components/NodeDetailCard';
+import InfrastructurePanel from '@/components/InfrastructurePanel';
 import CriticalAlertsCarousel from '@/components/CriticalAlertsCarousel';
 import ServiceAreasPanel from '@/components/ServiceAreasPanel';
 import PowerTimelinePanel from '@/components/PowerTimelinePanel';
@@ -19,6 +20,7 @@ const Index = () => {
   const [flyTo, setFlyTo] = useState<{ lat: number; lng: number; zoom: number } | null>(null);
   const [selectedNode, setSelectedNode] = useState<DbNode | null>(null);
   const [nodePixel, setNodePixel] = useState<{ x: number; y: number } | null>(null);
+  const [infrastructureParent, setInfrastructureParent] = useState<DbNode | null>(null);
   const [activeView, setActiveView] = useState<ScopeView>('GRID MAP');
 
   const { nodes, loading } = useNodes();
@@ -69,14 +71,19 @@ const Index = () => {
 
       <div className="grid-overlay" />
 
-      {/* Logo */}
+      {['A', 'B', 'C', 'D', 'E'].map((label, i) => (
+        <span key={`col-${label}`} className="grid-axis-label" style={{ top: 8, left: `${(i + 1) * 120}px` }}>{label}</span>
+      ))}
+      {[1, 2, 3, 4].map((label, i) => (
+        <span key={`row-${label}`} className="grid-axis-label" style={{ top: `${(i + 1) * 120}px`, left: 8 }}>{label}.</span>
+      ))}
+
       <div className="absolute top-4 left-5 z-[1000]">
         <div className="w-9 h-9 rounded-md bg-card/80 backdrop-blur border border-border/40 flex items-center justify-center overflow-hidden">
           <img src={logoImg} alt="Logo" className="w-6 h-6 object-contain" />
         </div>
       </div>
 
-      {/* Search */}
       <div className="absolute top-4 right-5 z-[1000]">
         <SearchBar nodes={nodes} onSearchCity={handleSearchCity} onSelectNode={handleSelectNode} />
       </div>
@@ -85,10 +92,16 @@ const Index = () => {
 
       <ScopePanel activeView={activeView} onViewChange={setActiveView} />
 
-      {/* View panels */}
+      {/* Content panels based on active view */}
       <AnimatePresence mode="wait">
         {activeView === 'SERVICE AREA' && (
-          <ServiceAreasPanel key="service-areas" nodes={nodes} onSelectNode={handleSelectNode} onFlyTo={handleFlyTo} onClose={() => setActiveView('GRID MAP')} />
+          <ServiceAreasPanel
+            key="service-areas"
+            nodes={nodes}
+            onSelectNode={handleSelectNode}
+            onFlyTo={handleFlyTo}
+            onClose={() => setActiveView('GRID MAP')}
+          />
         )}
         {activeView === 'POWER TIMELINE' && (
           <PowerTimelinePanel key="power-timeline" events={gridEvents} onClose={() => setActiveView('GRID MAP')} />
@@ -100,19 +113,37 @@ const Index = () => {
 
       <StatsPanel stats={stats} gridStatus={gridStatus} nodes={nodes} />
 
-      {/* Zoom */}
+      {/* Custom zoom controls */}
       <div className="absolute bottom-20 right-3 z-[1001] flex flex-col gap-0">
-        <button onClick={() => mapRef.current?.zoomIn()} className="w-8 h-8 flex items-center justify-center bg-card/90 backdrop-blur-xl border border-border/50 rounded-t text-foreground hover:bg-accent/50 transition-colors">
+        <button
+          onClick={() => mapRef.current?.zoomIn()}
+          className="w-8 h-8 flex items-center justify-center bg-card/90 backdrop-blur-xl border border-border/50 rounded-t text-foreground hover:bg-accent/50 transition-colors"
+        >
           <Plus className="w-4 h-4" />
         </button>
-        <button onClick={() => mapRef.current?.zoomOut()} className="w-8 h-8 flex items-center justify-center bg-card/90 backdrop-blur-xl border border-border/50 border-t-0 rounded-b text-foreground hover:bg-accent/50 transition-colors">
+        <button
+          onClick={() => mapRef.current?.zoomOut()}
+          className="w-8 h-8 flex items-center justify-center bg-card/90 backdrop-blur-xl border border-border/50 border-t-0 rounded-b text-foreground hover:bg-accent/50 transition-colors"
+        >
           <Minus className="w-4 h-4" />
         </button>
       </div>
 
       <BottomToolbar stats={stats} events={gridEvents} gridStatus={gridStatus} nodes={nodes} />
 
-      {/* Node detail */}
+      <AnimatePresence>
+        {infrastructureParent && (
+          <InfrastructurePanel
+            parentNode={infrastructureParent}
+            onClose={() => setInfrastructureParent(null)}
+            onSelectChild={(child) => {
+              handleSelectNode(child);
+              setInfrastructureParent(child);
+            }}
+          />
+        )}
+      </AnimatePresence>
+
       <AnimatePresence>
         {selectedNode && (
           <NodeDetailCard
@@ -121,13 +152,14 @@ const Index = () => {
             onClose={() => { setSelectedNode(null); setNodePixel(null); }}
             onReport={handleReport}
             submitting={submitting}
+            onViewInfrastructure={() => setInfrastructureParent(selectedNode)}
           />
         )}
       </AnimatePresence>
 
       {loading && (
         <div className="absolute inset-0 z-[2000] flex items-center justify-center bg-background/80">
-          <div className="text-xs text-muted-foreground animate-pulse">Loading map...</div>
+          <div className="text-[11px] text-muted-foreground tracking-widest animate-pulse">LOADING GRID DATA...</div>
         </div>
       )}
     </div>

@@ -23,8 +23,8 @@ export default function SearchBar({ nodes, onSearchCity, onSelectNode }: Props) 
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => setFocused(true)}
           onBlur={() => setTimeout(() => setFocused(false), 200)}
-          placeholder="Search your area..."
-          className="w-full pl-8 pr-3 py-2 bg-card/80 backdrop-blur border border-border/40 rounded text-[11px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/30"
+          placeholder="Search Location or Feeder"
+          className="w-full pl-8 pr-3 py-2 bg-card/80 backdrop-blur border border-border/40 rounded text-[11px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/30 tracking-wider"
         />
       </div>
       {focused && results.length > 0 && (
@@ -42,8 +42,8 @@ export default function SearchBar({ nodes, onSearchCity, onSelectNode }: Props) 
                 setQuery('');
               }}
             >
-              <span className={`text-[9px] px-1.5 py-0.5 rounded ${r.type === 'city' ? 'bg-primary/15 text-primary' : 'bg-accent text-muted-foreground'}`}>
-                {r.type === 'city' ? 'Area' : 'Station'}
+              <span className={`text-[9px] px-1 py-0.5 rounded tracking-wider ${r.type === 'city' ? 'bg-primary/15 text-primary' : 'bg-accent text-muted-foreground'}`}>
+                {r.type === 'city' ? 'CITY' : 'FEEDER'}
               </span>
               <span className="text-foreground">{r.label}</span>
             </button>
