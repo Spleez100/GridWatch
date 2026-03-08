@@ -295,11 +295,6 @@ export default function CriticalAlertsCarousel() {
                                     <span className="text-muted-foreground">Source: {event.source_platform}</span>
                                   )}
                                 </div>
-                                {event.source_handle && (
-                                  <p className="text-[8px] text-primary">
-                                    Posted by: {event.source_platform === 'twitter' ? `@${event.source_handle.replace('@', '')}` : event.source_handle}
-                                  </p>
-                                )}
                               </div>
                             </motion.div>
                           )}

@@ -198,12 +198,6 @@ export default function PowerTimelinePanel({ events, onClose }: Props) {
                               {item.confidence && <span className="text-muted-foreground">Confidence: {item.confidence}%</span>}
                               {item.signalCount && item.signalCount > 1 && <span className="text-primary">×{item.signalCount} confirmations</span>}
                             </div>
-                            {item.handle && (
-                              <p className="text-[8px] text-primary">
-                                Posted by: {item.platform === 'twitter' ? `@${item.handle.replace('@', '')}` : item.handle}
-                                {item.platform && ` on ${platformLabels[item.platform] || item.platform}`}
-                              </p>
-                            )}
                           </div>
                         </motion.div>
                       )}
