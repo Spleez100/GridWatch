@@ -73,6 +73,11 @@ const ElectricityMap = forwardRef<ElectricityMapHandle, ElectricityMapProps>(({ 
 
     L.control.zoom({ position: 'bottomright' }).addTo(map);
 
+    map.on('moveend', () => {
+      const c = map.getCenter();
+      onCenterChangeRef.current?.(c.lat, c.lng);
+    });
+
     mapRef.current = map;
 
     return () => {
