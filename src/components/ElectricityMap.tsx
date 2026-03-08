@@ -14,6 +14,9 @@ function createNodeIcon(status: string, severity: string = 'LOW', isSelected: bo
   const size = isSelected ? 32 : stationType === 'transmission' ? 28 : stationType === 'generation' ? 26 : 24;
   const statusClass = `status-${color}${isCritical ? ' status-critical' : ''}`;
   const { shape, label } = stationShape(stationType);
+  
+  // Don't show marker if status is unknown
+  if (status === 'UNKNOWN') return null;
 
   return L.divIcon({
     className: '',
