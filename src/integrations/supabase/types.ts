@@ -27,9 +27,11 @@ export type Database = {
           raw_extraction: Json | null
           severity: string
           signal_count: number
+          source_handle: string | null
           source_platform: string
           source_query: string | null
           source_snippet: string | null
+          source_url: string | null
           state: string | null
         }
         Insert: {
@@ -44,9 +46,11 @@ export type Database = {
           raw_extraction?: Json | null
           severity?: string
           signal_count?: number
+          source_handle?: string | null
           source_platform?: string
           source_query?: string | null
           source_snippet?: string | null
+          source_url?: string | null
           state?: string | null
         }
         Update: {
@@ -61,9 +65,11 @@ export type Database = {
           raw_extraction?: Json | null
           severity?: string
           signal_count?: number
+          source_handle?: string | null
           source_platform?: string
           source_query?: string | null
           source_snippet?: string | null
+          source_url?: string | null
           state?: string | null
         }
         Relationships: [

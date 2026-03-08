@@ -69,6 +69,8 @@ interface ExtractedSignal {
   confidence: number;
   snippet: string;
   source_platform: string;
+  source_handle: string | null;
+  source_url: string | null;
   duration_mentioned: string | null;
   multiple_reports: boolean;
 }
@@ -136,11 +138,14 @@ Deno.serve(async (req) => {
 CRITICAL RULES:
 - Report ONLY real, current outage or restoration events from the last few hours
 - Include specific locations (neighborhoods, areas, cities, states)
+- ALWAYS capture the social media handle/username of the person reporting (e.g. @username for Twitter/X, Facebook display name, Reddit username)
+- ALWAYS capture the source URL/link if available
 - Note if multiple people are reporting the same outage
 - Note how long the outage has lasted if mentioned
 - Distinguish between outages, restorations, and intermittent supply
 - Nigerian slang: "no light"/"light don go"/"nepa don take light" = outage; "light don come" = restoration
-- Be factual, include source platform (Twitter/X, Facebook, news, etc.)`,
+- Be factual, include source platform (Twitter/X, Facebook, news, etc.)
+- Do NOT report old events as recent. Only include events from the last 24 hours`,
             },
             {
               role: "user",
@@ -226,7 +231,10 @@ CONFIDENCE RULES:
 - Multiple independent reports = higher confidence
 - Specific location = higher confidence
 - Infrastructure damage mentioned = automatically higher confidence (70+)
-- Note source platform (Twitter/X, Facebook, Reddit, news, forum)`,
+- Note source platform (Twitter/X, Facebook, Reddit, news, forum)
+- ALWAYS extract the @handle or display name of the person who posted
+- ALWAYS extract the source URL if available from citations
+- Do NOT report old events (>24 hours) as current`,
             },
             {
               role: "user",
@@ -288,6 +296,16 @@ CONFIDENCE RULES:
                             description:
                               "Platform source: twitter, facebook, reddit, news, forum, unknown",
                           },
+                          source_handle: {
+                            type: "string",
+                            description:
+                              "The @handle or display name of the person who posted (e.g. @lagoslighter for Twitter, 'John Doe' for Facebook). null if unknown",
+                          },
+                          source_url: {
+                            type: "string",
+                            description:
+                              "Direct URL to the post or article if available. null if unknown",
+                          },
                           duration_mentioned: {
                             type: "string",
                             description:
@@ -308,6 +326,8 @@ CONFIDENCE RULES:
                           "confidence",
                           "snippet",
                           "source_platform",
+                          "source_handle",
+                          "source_url",
                           "duration_mentioned",
                           "multiple_reports",
                         ],
@@ -438,6 +458,8 @@ CONFIDENCE RULES:
         source_query: queries.join(" | "),
         source_snippet: signal.snippet,
         source_platform: signal.source_platform,
+        source_handle: signal.source_handle || null,
+        source_url: signal.source_url || (allCitations.length > 0 ? allCitations[0] : null),
         confidence: signal.confidence,
         signal_count: signal.multiple_reports ? 2 : 1,
         raw_extraction: signal as unknown as Record<string, unknown>,

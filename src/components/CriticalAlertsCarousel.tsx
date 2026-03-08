@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { AlertTriangle, Zap, ZapOff, ChevronLeft, ChevronRight, Radio } from 'lucide-react';
+import { AlertTriangle, Zap, ZapOff, ChevronLeft, ChevronRight, Radio, ExternalLink, X, ChevronDown, ChevronUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface CriticalNode {
@@ -24,17 +24,31 @@ interface AiEvent {
   severity: string;
   confidence: number;
   source_snippet: string | null;
+  source_platform: string | null;
+  source_handle: string | null;
+  source_url: string | null;
   signal_count: number;
   created_at: string;
 }
+
+const platformIcons: Record<string, string> = {
+  twitter: '𝕏',
+  facebook: 'FB',
+  reddit: 'R',
+  news: '📰',
+  forum: '💬',
+};
 
 export default function CriticalAlertsCarousel() {
   const [criticalNodes, setCriticalNodes] = useState<CriticalNode[]>([]);
   const [recentEvents, setRecentEvents] = useState<AiEvent[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [expandedEventId, setExpandedEventId] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
+    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+
     const [nodesRes, eventsRes] = await Promise.all([
       supabase
         .from('nodes')
@@ -44,8 +58,9 @@ export default function CriticalAlertsCarousel() {
         .limit(20),
       supabase
         .from('ai_events')
-        .select('id, node_name, city, state, event_type, severity, confidence, source_snippet, signal_count, created_at')
+        .select('id, node_name, city, state, event_type, severity, confidence, source_snippet, source_platform, source_handle, source_url, signal_count, created_at')
         .in('severity', ['CRITICAL', 'HIGH'])
+        .gte('created_at', oneDayAgo)
         .order('created_at', { ascending: false })
         .limit(10),
     ]);
@@ -56,39 +71,33 @@ export default function CriticalAlertsCarousel() {
 
   useEffect(() => {
     fetchData();
-
-    // Auto-refresh every 5 minutes
     const interval = setInterval(fetchData, 5 * 60 * 1000);
-
-    // Realtime subscription for immediate updates
     const channel = supabase
       .channel('critical-alerts')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'nodes', filter: 'severity=in.(CRITICAL,HIGH)' }, () => {
-        fetchData();
-      })
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'ai_events' }, () => {
-        fetchData();
-      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'nodes', filter: 'severity=in.(CRITICAL,HIGH)' }, () => fetchData())
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'ai_events' }, () => fetchData())
       .subscribe();
-
-    return () => {
-      clearInterval(interval);
-      supabase.removeChannel(channel);
-    };
+    return () => { clearInterval(interval); supabase.removeChannel(channel); };
   }, [fetchData]);
 
-  // Auto-advance carousel
   useEffect(() => {
     if (criticalNodes.length <= 1) return;
-    const timer = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % criticalNodes.length);
-    }, 5000);
+    const timer = setInterval(() => setCurrentIndex((prev) => (prev + 1) % criticalNodes.length), 5000);
     return () => clearInterval(timer);
   }, [criticalNodes.length]);
 
   if (criticalNodes.length === 0 && recentEvents.length === 0) return null;
 
   const currentNode = criticalNodes[currentIndex];
+
+  const timeAgo = (t: string) => {
+    const mins = Math.round((Date.now() - new Date(t).getTime()) / 60000);
+    if (mins < 1) return 'just now';
+    if (mins < 60) return `${mins}m ago`;
+    const hrs = Math.round(mins / 60);
+    if (hrs < 24) return `${hrs}h ago`;
+    return `${Math.round(hrs / 24)}d ago`;
+  };
 
   const getDurationText = (lastOutage: string | null) => {
     if (!lastOutage) return 'Unknown';
@@ -99,9 +108,7 @@ export default function CriticalAlertsCarousel() {
   };
 
   const getIssueType = (node: CriticalNode) => {
-    const event = recentEvents.find(
-      (e) => e.city === node.city || e.node_name === node.name
-    );
+    const event = recentEvents.find((e) => e.city === node.city || e.node_name === node.name);
     if (event?.event_type === 'TRANSFORMER_FAILURE') return 'Transformer Failure';
     if (event?.event_type === 'FEEDER_FAILURE') return 'Feeder Failure';
     if (event?.event_type === 'INFRASTRUCTURE_FAILURE') return 'Infrastructure Failure';
@@ -120,8 +127,7 @@ export default function CriticalAlertsCarousel() {
   const next = () => setCurrentIndex((i) => (i + 1) % criticalNodes.length);
 
   return (
-    <div className="absolute top-4 left-16 z-[1000] max-w-[320px]">
-      {/* Header */}
+    <div className="absolute top-4 left-16 z-[1000] max-w-[340px]">
       <button
         onClick={() => setIsExpanded(!isExpanded)}
         className="glass-card rounded-t-lg w-full px-3 py-2 flex items-center gap-2 hover:bg-accent/30 transition-colors"
@@ -149,7 +155,6 @@ export default function CriticalAlertsCarousel() {
             transition={{ duration: 0.2 }}
             className="overflow-hidden"
           >
-            {/* Carousel card */}
             {currentNode && (
               <div className="glass-card border-t-0 rounded-none px-3 py-3">
                 <div className="flex items-center justify-between mb-2">
@@ -213,43 +218,106 @@ export default function CriticalAlertsCarousel() {
                   </motion.div>
                 </AnimatePresence>
 
-                {/* Progress dots */}
                 <div className="flex justify-center gap-1 mt-2.5">
                   {criticalNodes.slice(0, 8).map((_, i) => (
-                    <button
-                      key={i}
-                      onClick={() => setCurrentIndex(i)}
-                      className={`w-1 h-1 rounded-full transition-colors ${i === currentIndex ? 'bg-destructive' : 'bg-border'}`}
-                    />
+                    <button key={i} onClick={() => setCurrentIndex(i)} className={`w-1 h-1 rounded-full transition-colors ${i === currentIndex ? 'bg-destructive' : 'bg-border'}`} />
                   ))}
-                  {criticalNodes.length > 8 && (
-                    <span className="text-[7px] text-muted-foreground ml-0.5">+{criticalNodes.length - 8}</span>
-                  )}
+                  {criticalNodes.length > 8 && <span className="text-[7px] text-muted-foreground ml-0.5">+{criticalNodes.length - 8}</span>}
                 </div>
               </div>
             )}
 
-            {/* Recent AI signals */}
+            {/* Recent AI signals with expandable details */}
             {recentEvents.length > 0 && (
-              <div className="glass-card border-t border-border/30 rounded-b-lg px-3 py-2.5 max-h-[160px] overflow-y-auto">
-                <p className="text-[8px] text-muted-foreground tracking-widest uppercase mb-2">Recent AI Signals</p>
-                <div className="space-y-1.5">
-                  {recentEvents.slice(0, 5).map((event) => (
-                    <div key={event.id} className="flex items-start gap-1.5">
-                      <Zap className={`w-2.5 h-2.5 mt-0.5 shrink-0 ${severityColor(event.severity)}`} />
-                      <div className="min-w-0 flex-1">
-                        <p className="text-[9px] text-foreground truncate">
-                          {event.node_name || event.city} — {event.state}
-                        </p>
-                        {event.source_snippet && (
-                          <p className="text-[8px] text-muted-foreground truncate">{event.source_snippet}</p>
-                        )}
+              <div className="glass-card border-t border-border/30 rounded-b-lg px-3 py-2.5 max-h-[220px] overflow-y-auto">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-[8px] text-muted-foreground tracking-widest uppercase">Recent AI Signals</p>
+                  <button onClick={() => setIsExpanded(false)} className="p-0.5 rounded hover:bg-accent transition-colors">
+                    <X className="w-3 h-3 text-muted-foreground" />
+                  </button>
+                </div>
+                <div className="space-y-1">
+                  {recentEvents.slice(0, 8).map((event) => {
+                    const isEventExpanded = expandedEventId === event.id;
+                    return (
+                      <div key={event.id} className="rounded border border-border/20 overflow-hidden">
+                        <button
+                          onClick={() => setExpandedEventId(isEventExpanded ? null : event.id)}
+                          className="w-full flex items-start gap-1.5 px-2 py-1.5 hover:bg-accent/20 transition-colors"
+                        >
+                          <Zap className={`w-2.5 h-2.5 mt-0.5 shrink-0 ${severityColor(event.severity)}`} />
+                          <div className="min-w-0 flex-1 text-left">
+                            <div className="flex items-center gap-1">
+                              <p className="text-[9px] text-foreground truncate">
+                                {event.node_name || event.city} — {event.state}
+                              </p>
+                              {event.source_handle && (
+                                <span className="text-[7px] text-primary shrink-0">
+                                  {event.source_platform === 'twitter' ? `@${event.source_handle.replace('@', '')}` : event.source_handle}
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-1.5 mt-0.5">
+                              <span className="text-[7px] text-muted-foreground">{timeAgo(event.created_at)}</span>
+                              {event.source_platform && (
+                                <span className="text-[7px] text-muted-foreground/70">
+                                  {platformIcons[event.source_platform] || event.source_platform}
+                                </span>
+                              )}
+                              {event.signal_count > 1 && (
+                                <span className="text-[7px] text-primary">×{event.signal_count} reports</span>
+                              )}
+                            </div>
+                          </div>
+                          {isEventExpanded ? (
+                            <ChevronUp className="w-2.5 h-2.5 text-muted-foreground shrink-0 mt-0.5" />
+                          ) : (
+                            <ChevronDown className="w-2.5 h-2.5 text-muted-foreground shrink-0 mt-0.5" />
+                          )}
+                        </button>
+
+                        <AnimatePresence>
+                          {isEventExpanded && (
+                            <motion.div
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: 'auto', opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              className="overflow-hidden"
+                            >
+                              <div className="px-2 pb-2 pt-1 space-y-1.5 border-t border-border/20 bg-accent/10">
+                                {event.source_snippet && (
+                                  <p className="text-[8px] text-foreground/80 leading-relaxed">"{event.source_snippet}"</p>
+                                )}
+                                <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-[7px]">
+                                  <span className="text-muted-foreground">Severity: <span className={severityColor(event.severity)}>{event.severity}</span></span>
+                                  <span className="text-muted-foreground">Confidence: {event.confidence}%</span>
+                                  {event.source_platform && (
+                                    <span className="text-muted-foreground">Source: {event.source_platform}</span>
+                                  )}
+                                </div>
+                                {event.source_handle && (
+                                  <p className="text-[8px] text-primary">
+                                    Posted by: {event.source_platform === 'twitter' ? `@${event.source_handle.replace('@', '')}` : event.source_handle}
+                                  </p>
+                                )}
+                                {event.source_url && (
+                                  <a
+                                    href={event.source_url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-1 text-[8px] text-primary hover:underline"
+                                  >
+                                    <ExternalLink className="w-2.5 h-2.5" />
+                                    View original source
+                                  </a>
+                                )}
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
                       </div>
-                      <span className="text-[7px] text-muted-foreground shrink-0">
-                        {event.signal_count > 1 ? `×${event.signal_count}` : ''}
-                      </span>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}
