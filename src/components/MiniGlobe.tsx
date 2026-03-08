@@ -166,8 +166,8 @@ export default function MiniGlobe({ center }: Props) {
     <div className="glass-panel rounded-lg p-1.5 flex items-center justify-center">
       <canvas
         ref={canvasRef}
-        width={72}
-        height={72}
+        width={110}
+        height={110}
         className="rounded-full"
       />
       <div className="absolute bottom-0.5 left-0 right-0 text-center">
