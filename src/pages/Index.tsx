@@ -20,6 +20,7 @@ const Index = () => {
   const [flyTo, setFlyTo] = useState<{ lat: number; lng: number; zoom: number } | null>(null);
   const [selectedNode, setSelectedNode] = useState<DbNode | null>(null);
   const [nodePixel, setNodePixel] = useState<{ x: number; y: number } | null>(null);
+  const [infrastructureParent, setInfrastructureParent] = useState<DbNode | null>(null);
   const [activeView, setActiveView] = useState<ScopeView>('GRID MAP');
 
   const { nodes, loading } = useNodes();
