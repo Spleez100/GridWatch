@@ -629,6 +629,67 @@ CONFIDENCE RULES:
   }
 });
 
+// ── Status propagation ─────────────────────────────────────────
+// When a parent node (station/feeder/transformer) goes down or comes back,
+// propagate the status to all descendant nodes recursively.
+async function propagateStatusToChildren(
+  supabase: any,
+  parentId: string,
+  status: string,
+  severity: string,
+  confidence: number
+) {
+  // Fetch direct children
+  const { data: children } = await supabase
+    .from("nodes")
+    .select("id, status, infrastructure_level")
+    .eq("parent_node_id", parentId);
+
+  if (!children || children.length === 0) return;
+
+  // Determine propagation rules based on status
+  const updateData: Record<string, unknown> = {
+    status,
+    severity,
+    confidence: Math.max(confidence, 40),
+  };
+  if (status === "OUTAGE") {
+    updateData.last_outage = new Date().toISOString();
+  }
+
+  // For POWER_AVAILABLE (restoration), only propagate if child is currently in outage/intermittent
+  // For OUTAGE, always propagate down (parent down = children down)
+  const childIds = children
+    .filter((c: any) => {
+      if (status === "POWER_AVAILABLE") {
+        // Only restore children that were in outage/intermittent
+        return c.status === "OUTAGE" || c.status === "INTERMITTENT";
+      }
+      // For outage, propagate to all non-outage children
+      return c.status !== status;
+    })
+    .map((c: any) => c.id);
+
+  if (childIds.length === 0) return;
+
+  // Batch update all affected children
+  await supabase
+    .from("nodes")
+    .update(updateData)
+    .in("id", childIds);
+
+  // Recursively propagate to grandchildren
+  for (const childId of childIds) {
+    await propagateStatusToChildren(
+      supabase,
+      childId,
+      status,
+      severity,
+      Math.max(confidence - 5, 30) // decrease confidence further down the chain
+    );
+  }
+}
+
 // ── Node matching logic ────────────────────────────────────────
 function findBestNodeMatch(
   signal: ExtractedSignal,
