@@ -348,6 +348,11 @@ CONFIDENCE RULES:
                             description:
                               "Whether multiple independent reports confirm this",
                           },
+                          infrastructure_detail: {
+                            type: "string",
+                            description:
+                              "Specific infrastructure mentioned: feeder name (e.g. 'GRA Feeder 1'), transformer location (e.g. 'Allen Avenue Transformer'), service area (e.g. 'Lekki Phase 1'), or street name. null if not mentioned",
+                          },
                         },
                         required: [
                           "location",
