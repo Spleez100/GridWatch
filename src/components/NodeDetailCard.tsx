@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { DbNode, statusToColor, bandExpectedHours } from '@/hooks/useGridData';
-import { X, Zap, Clock, MapPin, DollarSign, Building2, Shield, AlertTriangle, CheckCircle2, XCircle, BarChart3, Users } from 'lucide-react';
+import { X, Zap, Clock, MapPin, DollarSign, Building2, Shield, AlertTriangle, CheckCircle2, XCircle, BarChart3, Users, Activity, Globe } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const statusConfig: Record<string, { label: string; color: string }> = {
@@ -99,6 +99,8 @@ export default function NodeDetailCard({ node, pixel, onClose, onReport, submitt
 
       <div className="px-3.5 py-2.5 space-y-2 text-[11px]">
         <Row icon={Zap} label="Band" value={`Band ${node.band}`} sub={bandDescriptions[node.band]} valueClass={bandColors[node.band]} />
+        {node.voltage_class && node.voltage_class !== 'N/A' && <Row icon={Activity} label="Voltage Class" value={node.voltage_class} />}
+        {node.tcn_region && node.tcn_region !== 'N/A' && <Row icon={Globe} label="TCN Region" value={node.tcn_region} />}
         <Row icon={BarChart3} label="Expected Supply" value={`${expectedHours} hrs`} />
         <Row icon={Clock} label="Actual Today" value={`${node.avg_supply_hours} hrs`} valueClass={node.avg_supply_hours < expectedHours * 0.5 ? 'text-destructive' : 'text-foreground'} />
         <Row icon={MapPin} label="Area Type" value={node.area_type} />
