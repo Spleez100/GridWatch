@@ -94,12 +94,20 @@ const ElectricityMap = forwardRef<ElectricityMapHandle, ElectricityMapProps>(({ 
 
       if (existing) {
         // Update icon if status changed
-        existing.setIcon(createNodeIcon(node.status, (node as any).severity || 'LOW', selectedNode?.id === node.id, node.station_type));
+        const newIcon = createNodeIcon(node.status, (node as any).severity || 'LOW', selectedNode?.id === node.id, node.station_type);
+        if (newIcon) {
+          existing.setIcon(newIcon);
+        } else {
+          // Remove marker if status is UNKNOWN
+          existing.remove();
+          delete markersRef.current[node.id];
+        }
       } else {
-        // Create new marker
-        const marker = L.marker([node.latitude, node.longitude], {
-          icon: createNodeIcon(node.status, (node as any).severity || 'LOW', selectedNode?.id === node.id, node.station_type),
-        });
+        // Create new marker only if status is not UNKNOWN
+        const icon = createNodeIcon(node.status, (node as any).severity || 'LOW', selectedNode?.id === node.id, node.station_type);
+        if (!icon) return; // Skip if status is UNKNOWN
+
+        const marker = L.marker([node.latitude, node.longitude], { icon });
 
         marker.on('click', () => {
           const currentNode = nodesRef.current.find(n => n.id === node.id) || node;
