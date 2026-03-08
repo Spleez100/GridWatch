@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Building2, Zap, ZapOff } from 'lucide-react';
+import { Building2, Zap, ZapOff, X } from 'lucide-react';
 import type { DbNode } from '@/hooks/useGridData';
 
 interface Props {
