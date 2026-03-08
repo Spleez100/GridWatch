@@ -7,6 +7,7 @@ import ScopePanel, { ScopeView } from '@/components/ScopePanel';
 import StatsPanel from '@/components/StatsPanel';
 import BottomToolbar from '@/components/BottomToolbar';
 import NodeDetailCard from '@/components/NodeDetailCard';
+import InfrastructurePanel from '@/components/InfrastructurePanel';
 import CriticalAlertsCarousel from '@/components/CriticalAlertsCarousel';
 import ServiceAreasPanel from '@/components/ServiceAreasPanel';
 import PowerTimelinePanel from '@/components/PowerTimelinePanel';
@@ -19,6 +20,7 @@ const Index = () => {
   const [flyTo, setFlyTo] = useState<{ lat: number; lng: number; zoom: number } | null>(null);
   const [selectedNode, setSelectedNode] = useState<DbNode | null>(null);
   const [nodePixel, setNodePixel] = useState<{ x: number; y: number } | null>(null);
+  const [infrastructureParent, setInfrastructureParent] = useState<DbNode | null>(null);
   const [activeView, setActiveView] = useState<ScopeView>('GRID MAP');
 
   const { nodes, loading } = useNodes();
@@ -130,6 +132,19 @@ const Index = () => {
       <BottomToolbar stats={stats} events={gridEvents} gridStatus={gridStatus} nodes={nodes} />
 
       <AnimatePresence>
+        {infrastructureParent && (
+          <InfrastructurePanel
+            parentNode={infrastructureParent}
+            onClose={() => setInfrastructureParent(null)}
+            onSelectChild={(child) => {
+              handleSelectNode(child);
+              setInfrastructureParent(child);
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
         {selectedNode && (
           <NodeDetailCard
             node={selectedNode}
@@ -137,6 +152,7 @@ const Index = () => {
             onClose={() => { setSelectedNode(null); setNodePixel(null); }}
             onReport={handleReport}
             submitting={submitting}
+            onViewInfrastructure={() => setInfrastructureParent(selectedNode)}
           />
         )}
       </AnimatePresence>
