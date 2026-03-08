@@ -111,6 +111,22 @@ const Index = () => {
 
       <StatsPanel stats={stats} gridStatus={gridStatus} nodes={nodes} />
 
+      {/* Custom zoom controls */}
+      <div className="absolute bottom-20 right-3 z-[1001] flex flex-col gap-0">
+        <button
+          onClick={() => mapRef.current?.zoomIn()}
+          className="w-8 h-8 flex items-center justify-center bg-card/90 backdrop-blur-xl border border-border/50 rounded-t text-foreground hover:bg-accent/50 transition-colors"
+        >
+          <Plus className="w-4 h-4" />
+        </button>
+        <button
+          onClick={() => mapRef.current?.zoomOut()}
+          className="w-8 h-8 flex items-center justify-center bg-card/90 backdrop-blur-xl border border-border/50 border-t-0 rounded-b text-foreground hover:bg-accent/50 transition-colors"
+        >
+          <Minus className="w-4 h-4" />
+        </button>
+      </div>
+
       <BottomToolbar stats={stats} events={gridEvents} gridStatus={gridStatus} nodes={nodes} />
 
       <AnimatePresence>
