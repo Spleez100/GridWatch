@@ -69,6 +69,7 @@ const Index = () => {
         onClearFlyTo={() => setFlyTo(null)}
         onSelectNode={handleSelectNode}
         selectedNode={selectedNode}
+        onCenterChange={(lat, lng) => setMapCenter({ lat, lng })}
       />
 
       <div className="grid-overlay" />
