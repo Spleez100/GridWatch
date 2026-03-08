@@ -1,5 +1,6 @@
-import { useMemo } from 'react';
+import { useMemo, useEffect, useState, useRef } from 'react';
 import { Waves, HelpCircle, Maximize2, Info, Lock, AlertTriangle } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 import type { DbGridEvent, DbGridStatus } from '@/hooks/useGridData';
 
 interface Props {
@@ -15,11 +16,37 @@ interface Props {
 }
 
 export default function BottomToolbar({ stats, events, gridStatus }: Props) {
+  const [realtimeEvents, setRealtimeEvents] = useState<DbGridEvent[]>(events);
+  const tickRef = useRef(0);
+  const [, setTick] = useState(0);
+
+  // Sync prop events
+  useEffect(() => { setRealtimeEvents(events); }, [events]);
+
+  // Subscribe to new grid_events in real-time
+  useEffect(() => {
+    const channel = supabase
+      .channel('bottom-toolbar-events')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'grid_events' }, (payload) => {
+        setRealtimeEvents((prev) => [payload.new as DbGridEvent, ...prev].slice(0, 100));
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, []);
+
+  // Tick every 30s to keep "time ago" labels fresh
+  useEffect(() => {
+    const interval = setInterval(() => {
+      tickRef.current++;
+      setTick(tickRef.current);
+    }, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
   const barData = useMemo(() => {
-    // Build 24-hour activity from events
     const hours = Array.from({ length: 24 }, (_, i) => ({ hour: i, outages: 0, restorations: 0, total: 0 }));
     const now = new Date();
-    events.forEach((e) => {
+    realtimeEvents.forEach((e) => {
       const d = new Date(e.created_at);
       const hoursAgo = (now.getTime() - d.getTime()) / 3600000;
       if (hoursAgo < 24) {
@@ -31,10 +58,10 @@ export default function BottomToolbar({ stats, events, gridStatus }: Props) {
     });
     return hours.map((h) => ({
       hour: h.hour,
-      value: Math.max(10, h.total * 15 + Math.random() * 30),
+      value: Math.max(10, h.total * 15 + 5),
       isOutage: h.outages > h.restorations,
     }));
-  }, [events]);
+  }, [realtimeEvents]);
 
   const showInstability = gridStatus && gridStatus.status !== 'GRID_STABLE';
 
