@@ -296,6 +296,16 @@ CONFIDENCE RULES:
                             description:
                               "Platform source: twitter, facebook, reddit, news, forum, unknown",
                           },
+                          source_handle: {
+                            type: "string",
+                            description:
+                              "The @handle or display name of the person who posted (e.g. @lagoslighter for Twitter, 'John Doe' for Facebook). null if unknown",
+                          },
+                          source_url: {
+                            type: "string",
+                            description:
+                              "Direct URL to the post or article if available. null if unknown",
+                          },
                           duration_mentioned: {
                             type: "string",
                             description:
@@ -316,6 +326,8 @@ CONFIDENCE RULES:
                           "confidence",
                           "snippet",
                           "source_platform",
+                          "source_handle",
+                          "source_url",
                           "duration_mentioned",
                           "multiple_reports",
                         ],
