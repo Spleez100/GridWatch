@@ -23,6 +23,7 @@ const Index = () => {
   const [nodePixel, setNodePixel] = useState<{ x: number; y: number } | null>(null);
   const [infrastructureParent, setInfrastructureParent] = useState<DbNode | null>(null);
   const [activeView, setActiveView] = useState<ScopeView>('GRID MAP');
+  const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number }>({ lat: 9.0, lng: 7.5 });
 
   const { nodes, loading } = useNodes();
   const gridStatus = useGridStatus();
