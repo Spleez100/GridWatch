@@ -110,6 +110,15 @@ export default function NodeDetailCard({ node, pixel, onClose, onReport, submitt
         <Row icon={Building2} label="DisCo" value={node.disco} />
         <Row icon={Users} label="Reports" value={`${node.report_count}`} />
         <Row icon={Shield} label="Confidence" value={`${node.confidence}%`} valueClass={node.confidence >= 70 ? 'text-success' : node.confidence >= 40 ? 'text-warning' : 'text-destructive'} />
+        {onViewInfrastructure && node.infrastructure_level && ['transmission', 'distribution', 'generation', 'feeder', 'transformer'].includes(node.infrastructure_level) && (
+          <button
+            onClick={onViewInfrastructure}
+            className="w-full mt-2 flex items-center justify-center gap-2 py-2 rounded border border-border/30 hover:bg-accent/30 transition-colors text-xs text-muted-foreground hover:text-foreground"
+          >
+            <Network className="w-3.5 h-3.5" />
+            <span className="tracking-wider">View Child Infrastructure</span>
+          </button>
+        )}
       </div>
 
       <div className="px-3.5 py-2.5 border-t border-border/30">
