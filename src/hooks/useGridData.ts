@@ -34,16 +34,25 @@ export function useNodes() {
 
   useEffect(() => {
     const fetchNodes = async () => {
-      const { data } = await supabase.from('nodes').select('*');
+      // Only fetch top-level stations by default (those visible on map)
+      const { data } = await supabase
+        .from('nodes')
+        .select('*')
+        .eq('is_visible_default', true);
       if (data) setNodes(data);
       setLoading(false);
     };
     fetchNodes();
 
-    // Realtime subscription
+    // Realtime subscription for visible nodes only
     const channel = supabase
       .channel('nodes-realtime')
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'nodes' }, (payload) => {
+      .on('postgres_changes', { 
+        event: 'UPDATE', 
+        schema: 'public', 
+        table: 'nodes',
+        filter: 'is_visible_default=eq.true'
+      }, (payload) => {
         setNodes((prev) =>
           prev.map((n) => (n.id === payload.new.id ? { ...n, ...payload.new } as DbNode : n))
         );
@@ -54,6 +63,33 @@ export function useNodes() {
   }, []);
 
   return { nodes, loading };
+}
+
+// Hook to fetch child infrastructure nodes for a parent
+export function useChildNodes(parentId: string | null) {
+  const [children, setChildren] = useState<DbNode[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!parentId) {
+      setChildren([]);
+      return;
+    }
+
+    setLoading(true);
+    const fetchChildren = async () => {
+      const { data } = await supabase
+        .from('nodes')
+        .select('*')
+        .eq('parent_node_id', parentId)
+        .order('infrastructure_level');
+      if (data) setChildren(data);
+      setLoading(false);
+    };
+    fetchChildren();
+  }, [parentId]);
+
+  return { children, loading };
 }
 
 export function useGridStatus() {
