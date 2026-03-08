@@ -19,7 +19,7 @@ interface AreaGroup {
   intermittent: number;
 }
 
-export default function ServiceAreasPanel({ nodes, onSelectNode, onFlyTo }: Props) {
+export default function ServiceAreasPanel({ nodes, onSelectNode, onFlyTo, onClose }: Props) {
   const [filter, setFilter] = useState<'all' | 'outage' | 'powered' | 'intermittent'>('all');
   const [expandedCity, setExpandedCity] = useState<string | null>(null);
 
