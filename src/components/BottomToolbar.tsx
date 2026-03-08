@@ -1,6 +1,5 @@
 import { useMemo } from 'react';
 import { Waves, HelpCircle, Maximize2, Info, Lock, AlertTriangle } from 'lucide-react';
-import { powerNodes } from '@/data/nigeriaNodes';
 
 interface Props {
   stats: {
@@ -13,7 +12,6 @@ interface Props {
 }
 
 export default function BottomToolbar({ stats }: Props) {
-  // Generate fake hourly bar data
   const barData = useMemo(() => {
     return Array.from({ length: 24 }, (_, i) => ({
       hour: i,
@@ -39,29 +37,35 @@ export default function BottomToolbar({ stats }: Props) {
 
         {/* Main bottom bar */}
         <div className="bg-card/90 backdrop-blur-xl border-t border-border/40 px-5 py-3 flex items-end justify-between gap-6">
-          {/* Left: filters + status dots */}
+          {/* Left: filters + legend */}
           <div className="flex items-center gap-3 shrink-0">
             <select className="bg-accent/50 border border-border/40 rounded px-2.5 py-1 text-[10px] text-muted-foreground appearance-none cursor-pointer focus:outline-none">
-              <option>Power grid</option>
-              <option>Region view</option>
+              <option>Area Overview</option>
             </select>
             <select className="bg-accent/50 border border-border/40 rounded px-2.5 py-1 text-[10px] text-muted-foreground appearance-none cursor-pointer focus:outline-none">
-              <option>12hr activity</option>
-              <option>24hr activity</option>
+              <option>24 Hour Power Flow</option>
             </select>
 
-            {/* Status dots row */}
-            <div className="flex items-center gap-2 ml-2">
-              <div className="w-2 h-2 rounded-full bg-success" />
-              <div className="w-2 h-2 rounded-full bg-success" />
-              <div className="w-2 h-2 rounded-full bg-destructive" />
-              <div className="w-2 h-2 rounded-full bg-success" />
+            {/* Status legend */}
+            <div className="flex items-center gap-3 ml-2">
+              <div className="flex items-center gap-1">
+                <div className="w-2 h-2 rounded-full bg-success" />
+                <span className="text-[8px] text-muted-foreground tracking-wider">Power Available</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <div className="w-2 h-2 rounded-full bg-warning" />
+                <span className="text-[8px] text-muted-foreground tracking-wider">Intermittent</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <div className="w-2 h-2 rounded-full bg-destructive" />
+                <span className="text-[8px] text-muted-foreground tracking-wider">Outage</span>
+              </div>
             </div>
           </div>
 
-          {/* Center: bar chart + activity label */}
+          {/* Center: bar chart */}
           <div className="flex-1 max-w-md">
-            <p className="text-[10px] text-muted-foreground tracking-wider mb-1.5">Surface Activity Breakdown</p>
+            <p className="text-[10px] text-muted-foreground tracking-wider mb-1.5">Electricity Activity Timeline</p>
             <div className="flex items-end gap-[2px] h-8">
               {barData.map((bar, i) => (
                 <div
@@ -79,9 +83,9 @@ export default function BottomToolbar({ stats }: Props) {
             </div>
           </div>
 
-          {/* Unstable badge */}
+          {/* Instability badge */}
           <div className="flex items-center gap-1.5 bg-accent/50 border border-border/40 rounded px-2.5 py-1.5">
-            <span className="text-[10px] text-muted-foreground tracking-wider">Unstable connection</span>
+            <span className="text-[10px] text-muted-foreground tracking-wider">Grid Instability Detected</span>
             <AlertTriangle className="w-3 h-3 text-destructive" />
           </div>
 
@@ -92,8 +96,7 @@ export default function BottomToolbar({ stats }: Props) {
                 <span className="text-lg font-bold text-foreground">{stats.stable.toLocaleString()}</span>
                 <span className="text-[9px] text-muted-foreground">/{stats.total}</span>
               </div>
-              <p className="text-[9px] text-muted-foreground tracking-wider">Stable Zones</p>
-              {/* progress bar */}
+              <p className="text-[9px] text-muted-foreground tracking-wider">Fully Powered Areas</p>
               <div className="flex gap-[1px] mt-1.5">
                 {Array.from({ length: 30 }).map((_, i) => (
                   <div
@@ -108,12 +111,27 @@ export default function BottomToolbar({ stats }: Props) {
                 <span className="text-lg font-bold text-foreground">{stats.critical.toLocaleString()}</span>
                 <span className="text-[9px] text-muted-foreground">/{stats.total}</span>
               </div>
-              <p className="text-[9px] text-muted-foreground tracking-wider">Critical Zones</p>
+              <p className="text-[9px] text-muted-foreground tracking-wider">Power Outage Areas</p>
               <div className="flex gap-[1px] mt-1.5">
                 {Array.from({ length: 30 }).map((_, i) => (
                   <div
                     key={i}
                     className={`w-[3px] h-2 rounded-[0.5px] ${i < Math.round((stats.critical / stats.total) * 30) ? 'bg-destructive' : 'bg-border/50'}`}
+                  />
+                ))}
+              </div>
+            </div>
+            <div>
+              <div className="flex items-baseline gap-1">
+                <span className="text-lg font-bold text-foreground">{stats.unstable.toLocaleString()}</span>
+                <span className="text-[9px] text-muted-foreground">/{stats.total}</span>
+              </div>
+              <p className="text-[9px] text-muted-foreground tracking-wider">Intermittent Supply</p>
+              <div className="flex gap-[1px] mt-1.5">
+                {Array.from({ length: 30 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className={`w-[3px] h-2 rounded-[0.5px] ${i < Math.round((stats.unstable / stats.total) * 30) ? 'bg-warning' : 'bg-border/50'}`}
                   />
                 ))}
               </div>
