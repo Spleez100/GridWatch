@@ -38,6 +38,11 @@ const ElectricityMap = forwardRef<ElectricityMapHandle, ElectricityMapProps>(({ 
   const markersRef = useRef<Record<string, L.Marker>>({});
   const nodesRef = useRef<DbNode[]>([]);
 
+  useImperativeHandle(ref, () => ({
+    zoomIn: () => mapRef.current?.zoomIn(),
+    zoomOut: () => mapRef.current?.zoomOut(),
+  }));
+
   const onSelectNodeRef = useRef(onSelectNode);
   onSelectNodeRef.current = onSelectNode;
 
