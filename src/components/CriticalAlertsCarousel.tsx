@@ -251,11 +251,6 @@ export default function CriticalAlertsCarousel() {
                               <p className="text-[9px] text-foreground truncate">
                                 {event.node_name || event.city} — {event.state}
                               </p>
-                              {event.source_handle && (
-                                <span className="text-[7px] text-primary shrink-0">
-                                  {event.source_platform === 'twitter' ? `@${event.source_handle.replace('@', '')}` : event.source_handle}
-                                </span>
-                              )}
                             </div>
                             <div className="flex items-center gap-1.5 mt-0.5">
                               <span className="text-[7px] text-muted-foreground">{timeAgo(event.created_at)}</span>
