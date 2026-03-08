@@ -117,10 +117,18 @@ export default function NodeDetailCard({ node, pixel, onClose, onReport, submitt
             <span className="tracking-wider">Report submitted — {reportSent}</span>
           </div>
         ) : (
-          <div className="flex gap-1.5">
-            <ReportBtn icon={CheckCircle2} label="Power On" color="text-success hover:bg-success/10" onClick={() => handleReport('Power Available')} disabled={submitting} />
-            <ReportBtn icon={XCircle} label="No Power" color="text-destructive hover:bg-destructive/10" onClick={() => handleReport('No Power')} disabled={submitting} />
-            <ReportBtn icon={AlertTriangle} label="Unstable" color="text-warning hover:bg-warning/10" onClick={() => handleReport('Intermittent Supply')} disabled={submitting} />
+          <div className="space-y-1.5">
+            <div className="flex gap-1.5">
+              <ReportBtn icon={CheckCircle2} label="Power On" color="text-success hover:bg-success/10" onClick={() => handleReport('Power Available')} disabled={submitting} />
+              <ReportBtn icon={XCircle} label="No Power" color="text-destructive hover:bg-destructive/10" onClick={() => handleReport('No Power')} disabled={submitting} />
+              <ReportBtn icon={AlertTriangle} label="Unstable" color="text-warning hover:bg-warning/10" onClick={() => handleReport('Intermittent Supply')} disabled={submitting} />
+            </div>
+            <button
+              onClick={onClose}
+              className="w-full text-[9px] tracking-wider text-muted-foreground hover:text-foreground py-1.5 rounded border border-border/30 hover:bg-accent/30 transition-colors"
+            >
+              Cancel
+            </button>
           </div>
         )}
       </div>
