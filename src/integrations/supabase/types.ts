@@ -195,12 +195,16 @@ export type Database = {
           confidence: number
           created_at: string
           disco: string
+          feeder_name: string | null
           id: string
+          infrastructure_level: string
+          is_visible_default: boolean
           last_outage: string | null
           latitude: number
           location_id: string | null
           longitude: number
           name: string
+          parent_node_id: string | null
           report_count: number
           severity: string
           state: string
@@ -219,12 +223,16 @@ export type Database = {
           confidence?: number
           created_at?: string
           disco: string
+          feeder_name?: string | null
           id?: string
+          infrastructure_level?: string
+          is_visible_default?: boolean
           last_outage?: string | null
           latitude: number
           location_id?: string | null
           longitude: number
           name: string
+          parent_node_id?: string | null
           report_count?: number
           severity?: string
           state: string
@@ -243,12 +251,16 @@ export type Database = {
           confidence?: number
           created_at?: string
           disco?: string
+          feeder_name?: string | null
           id?: string
+          infrastructure_level?: string
+          is_visible_default?: boolean
           last_outage?: string | null
           latitude?: number
           location_id?: string | null
           longitude?: number
           name?: string
+          parent_node_id?: string | null
           report_count?: number
           severity?: string
           state?: string
@@ -265,6 +277,13 @@ export type Database = {
             columns: ["location_id"]
             isOneToOne: false
             referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "nodes_parent_node_id_fkey"
+            columns: ["parent_node_id"]
+            isOneToOne: false
+            referencedRelation: "nodes"
             referencedColumns: ["id"]
           },
         ]
