@@ -1,20 +1,25 @@
 import { useState } from 'react';
 
-const scopeItems = ['SERVICE AREA', 'POWER TIMELINE', 'POWER LINES', 'GRID MAP'];
+export type ScopeView = 'GRID MAP' | 'POWER TIMELINE' | 'SERVICE AREA' | 'POWER LINES' | null;
 
-export default function ScopePanel() {
-  const [active, setActive] = useState<string | null>(null);
+const scopeItems: ScopeView[] = ['GRID MAP', 'POWER TIMELINE', 'SERVICE AREA', 'POWER LINES'];
 
+interface Props {
+  activeView: ScopeView;
+  onViewChange: (view: ScopeView) => void;
+}
+
+export default function ScopePanel({ activeView, onViewChange }: Props) {
   return (
-    <div className="absolute top-16 left-5 z-[1000] space-y-4">
+    <div className="absolute top-16 left-5 z-[1001] space-y-4">
       <span className="text-xs font-semibold text-foreground tracking-widest">[GRID SCOPE]</span>
       <div className="space-y-1.5">
         {scopeItems.map((item) => (
           <button
             key={item}
-            onClick={() => setActive(active === item ? null : item)}
+            onClick={() => onViewChange(activeView === item ? 'GRID MAP' : item)}
             className={`block text-[11px] tracking-wider transition-colors ${
-              active === item
+              activeView === item
                 ? 'text-foreground'
                 : 'text-muted-foreground hover:text-foreground/70'
             }`}

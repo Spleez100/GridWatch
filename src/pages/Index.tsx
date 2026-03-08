@@ -2,11 +2,14 @@ import { useState, useCallback } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import ElectricityMap from '@/components/ElectricityMap';
 import SearchBar from '@/components/SearchBar';
-import ScopePanel from '@/components/ScopePanel';
+import ScopePanel, { ScopeView } from '@/components/ScopePanel';
 import StatsPanel from '@/components/StatsPanel';
 import BottomToolbar from '@/components/BottomToolbar';
 import NodeDetailCard from '@/components/NodeDetailCard';
 import CriticalAlertsCarousel from '@/components/CriticalAlertsCarousel';
+import ServiceAreasPanel from '@/components/ServiceAreasPanel';
+import PowerTimelinePanel from '@/components/PowerTimelinePanel';
+import PowerLinesPanel from '@/components/PowerLinesPanel';
 import { useNodes, useGridStatus, useGridEvents, useReportPower, DbNode } from '@/hooks/useGridData';
 import { TrendingUp } from 'lucide-react';
 
@@ -14,6 +17,7 @@ const Index = () => {
   const [flyTo, setFlyTo] = useState<{ lat: number; lng: number; zoom: number } | null>(null);
   const [selectedNode, setSelectedNode] = useState<DbNode | null>(null);
   const [nodePixel, setNodePixel] = useState<{ x: number; y: number } | null>(null);
+  const [activeView, setActiveView] = useState<ScopeView>('GRID MAP');
 
   const { nodes, loading } = useNodes();
   const gridStatus = useGridStatus();
@@ -27,6 +31,10 @@ const Index = () => {
 
   const handleSearchCity = useCallback((lat: number, lng: number) => {
     setFlyTo({ lat, lng, zoom: 12 });
+  }, []);
+
+  const handleFlyTo = useCallback((lat: number, lng: number, zoom: number) => {
+    setFlyTo({ lat, lng, zoom });
   }, []);
 
   const handleReport = useCallback(async (node: DbNode, type: string) => {
@@ -77,7 +85,25 @@ const Index = () => {
 
       <CriticalAlertsCarousel />
 
-      <ScopePanel />
+      <ScopePanel activeView={activeView} onViewChange={setActiveView} />
+
+      {/* Content panels based on active view */}
+      <AnimatePresence mode="wait">
+        {activeView === 'SERVICE AREA' && (
+          <ServiceAreasPanel
+            key="service-areas"
+            nodes={nodes}
+            onSelectNode={handleSelectNode}
+            onFlyTo={handleFlyTo}
+          />
+        )}
+        {activeView === 'POWER TIMELINE' && (
+          <PowerTimelinePanel key="power-timeline" events={gridEvents} />
+        )}
+        {activeView === 'POWER LINES' && (
+          <PowerLinesPanel key="power-lines" nodes={nodes} onFlyTo={handleFlyTo} />
+        )}
+      </AnimatePresence>
 
       <StatsPanel stats={stats} gridStatus={gridStatus} />
 
