@@ -14,7 +14,163 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      grid_events: {
+        Row: {
+          city: string | null
+          created_at: string
+          event_type: string
+          id: string
+          node_id: string | null
+          node_name: string | null
+        }
+        Insert: {
+          city?: string | null
+          created_at?: string
+          event_type: string
+          id?: string
+          node_id?: string | null
+          node_name?: string | null
+        }
+        Update: {
+          city?: string | null
+          created_at?: string
+          event_type?: string
+          id?: string
+          node_id?: string | null
+          node_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "grid_events_node_id_fkey"
+            columns: ["node_id"]
+            isOneToOne: false
+            referencedRelation: "nodes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      grid_status: {
+        Row: {
+          id: string
+          intermittent_nodes: number
+          outage_nodes: number
+          powered_nodes: number
+          status: string
+          total_nodes: number
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          intermittent_nodes?: number
+          outage_nodes?: number
+          powered_nodes?: number
+          status?: string
+          total_nodes?: number
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          intermittent_nodes?: number
+          outage_nodes?: number
+          powered_nodes?: number
+          status?: string
+          total_nodes?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      nodes: {
+        Row: {
+          area_type: string
+          avg_supply_hours: number
+          band: string
+          city: string
+          confidence: number
+          created_at: string
+          disco: string
+          id: string
+          last_outage: string | null
+          latitude: number
+          longitude: number
+          name: string
+          report_count: number
+          state: string
+          status: string
+          tariff_per_kwh: number
+          updated_at: string
+        }
+        Insert: {
+          area_type: string
+          avg_supply_hours?: number
+          band: string
+          city: string
+          confidence?: number
+          created_at?: string
+          disco: string
+          id?: string
+          last_outage?: string | null
+          latitude: number
+          longitude: number
+          name: string
+          report_count?: number
+          state: string
+          status?: string
+          tariff_per_kwh?: number
+          updated_at?: string
+        }
+        Update: {
+          area_type?: string
+          avg_supply_hours?: number
+          band?: string
+          city?: string
+          confidence?: number
+          created_at?: string
+          disco?: string
+          id?: string
+          last_outage?: string | null
+          latitude?: number
+          longitude?: number
+          name?: string
+          report_count?: number
+          state?: string
+          status?: string
+          tariff_per_kwh?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      reports: {
+        Row: {
+          created_at: string
+          id: string
+          node_id: string
+          report_type: string
+          session_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          node_id: string
+          report_type: string
+          session_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          node_id?: string
+          report_type?: string
+          session_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reports_node_id_fkey"
+            columns: ["node_id"]
+            isOneToOne: false
+            referencedRelation: "nodes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
