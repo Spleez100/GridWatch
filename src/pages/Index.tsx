@@ -106,9 +106,9 @@ const Index = () => {
         )}
       </AnimatePresence>
 
-      <StatsPanel stats={stats} gridStatus={gridStatus} />
+      <StatsPanel stats={stats} gridStatus={gridStatus} nodes={nodes} />
 
-      <BottomToolbar stats={stats} events={gridEvents} gridStatus={gridStatus} />
+      <BottomToolbar stats={stats} events={gridEvents} gridStatus={gridStatus} nodes={nodes} />
 
       <AnimatePresence>
         {selectedNode && (
