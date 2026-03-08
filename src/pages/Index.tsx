@@ -7,6 +7,7 @@ import ScopePanel, { ScopeView } from '@/components/ScopePanel';
 import StatsPanel from '@/components/StatsPanel';
 import BottomToolbar from '@/components/BottomToolbar';
 import NodeDetailCard from '@/components/NodeDetailCard';
+import InfrastructurePanel from '@/components/InfrastructurePanel';
 import CriticalAlertsCarousel from '@/components/CriticalAlertsCarousel';
 import ServiceAreasPanel from '@/components/ServiceAreasPanel';
 import PowerTimelinePanel from '@/components/PowerTimelinePanel';
