@@ -14,12 +14,17 @@ const QUERY_GROUPS = {
     '("no light in" OR "no light since" OR "no light again") site:x.com',
     '("power outage" OR "electricity outage" OR "power failure") Nigeria today',
     '("light no dey" OR "power never come" OR "light never come") Nigeria',
-    '("transformer blown" OR "transformer fault" OR "feeder down") Nigeria',
     '("no electricity" OR "blackout") Nigeria today',
   ],
   twitter_restoration: [
     '("light don come" OR "power don restore" OR "electricity restored") Nigeria',
     '("power restored" OR "light is back") Nigeria today',
+  ],
+  infrastructure: [
+    '("transformer blown" OR "transformer blow" OR "transformer spoil") Nigeria',
+    '("transformer burnt" OR "transformer fault") Nigeria today',
+    '("feeder down" OR "feeder fault" OR "feeder tripped") Nigeria today',
+    '("substation failure" OR "substation down") Nigeria electricity',
   ],
   disco_specific: [
     "Eko Electricity EKEDC power outage Lagos today",
@@ -35,11 +40,13 @@ const QUERY_GROUPS = {
     "Yola Electricity YEDC power outage today",
   ],
   location_specific: [
-    "no light in Lagos Surulere Yaba Ajah Lekki today",
-    "no light in Abuja Wuse Garki Maitama today",
-    "no light in Port Harcourt Aba Enugu today",
-    "no light in Ibadan Ogbomosho Ilorin today",
-    "no light in Kano Kaduna Jos today",
+    "no light in Lagos Surulere Yaba Ajah Lekki Ikeja today",
+    "no light in Abuja Wuse Garki Maitama Gwarinpa Kubwa today",
+    "no light in Port Harcourt Rumuokoro Aba Uyo today",
+    "no light in Ibadan Bodija Ogbomosho Ilorin Osogbo today",
+    "no light in Kano Kaduna Jos Maiduguri Bauchi today",
+    "no light in Benin Warri Asaba Onitsha Enugu today",
+    "no light in Abeokuta Akure Ado-Ekiti Calabar Umuahia today",
   ],
   hashtags: [
     "#LightUp #DarknessInNigeria power outage today",
@@ -57,7 +64,7 @@ interface ExtractedSignal {
   location: string;
   city: string;
   state: string;
-  event_type: "outage_detected" | "power_restored" | "power_fluctuation";
+  event_type: "outage_detected" | "power_restored" | "power_fluctuation" | "TRANSFORMER_FAILURE" | "FEEDER_FAILURE" | "INFRASTRUCTURE_FAILURE";
   severity: "LOW" | "MODERATE" | "HIGH" | "CRITICAL";
   confidence: number;
   snippet: string;
@@ -196,21 +203,30 @@ CRITICAL RULES:
 KNOWN MONITORING NODES: ${nodeList}
 
 NIGERIAN ELECTRICITY LANGUAGE:
-Outage: "no light", "light don go", "nepa don take light", "no power since", "light never come", "power never come", "blackout", "power failure", "grid collapse", "transformer fault", "feeder fault"
+Outage: "no light", "light don go", "nepa don take light", "no power since", "light never come", "power never come", "blackout", "power failure", "grid collapse"
 Restoration: "light don come", "power don restore", "electricity restored", "light is back"
 Intermittent: "light dey come dey go", "unstable power"
+Infrastructure: "transformer blown/blow/spoil/burnt/fault", "feeder down/fault/tripped", "substation failure/down"
+
+EVENT TYPES:
+- outage_detected: general power outage
+- power_restored: power came back
+- power_fluctuation: intermittent/unstable supply
+- TRANSFORMER_FAILURE: transformer damaged/blown/burnt — always CRITICAL severity
+- FEEDER_FAILURE: feeder tripped/down — always HIGH or CRITICAL severity
+- INFRASTRUCTURE_FAILURE: substation or other infrastructure damage — always CRITICAL severity
 
 SEVERITY RULES:
-- CRITICAL: many posts about same area, outage >12 hours, transformer damage, entire community affected
+- CRITICAL: infrastructure damage (transformer/feeder/substation), many posts, outage >12 hours, entire community
 - HIGH: multiple confirmations, outage 6-12 hours, feeder issues
 - MODERATE: single confirmed report, outage <6 hours
 - LOW: unconfirmed single mention, vague location
 
 CONFIDENCE RULES:
-- Multiple independent reports for same location = higher confidence
-- Specific location mentioned = higher confidence
-- Vague/general reports = lower confidence
-- Note which platform the signal came from (Twitter/X, Facebook, Reddit, news, forum)`,
+- Multiple independent reports = higher confidence
+- Specific location = higher confidence
+- Infrastructure damage mentioned = automatically higher confidence (70+)
+- Note source platform (Twitter/X, Facebook, Reddit, news, forum)`,
             },
             {
               role: "user",
@@ -248,6 +264,9 @@ CONFIDENCE RULES:
                               "outage_detected",
                               "power_restored",
                               "power_fluctuation",
+                              "TRANSFORMER_FAILURE",
+                              "FEEDER_FAILURE",
+                              "INFRASTRUCTURE_FAILURE",
                             ],
                           },
                           severity: {
@@ -431,6 +450,9 @@ CONFIDENCE RULES:
           outage_detected: "OUTAGE",
           power_restored: "POWER_AVAILABLE",
           power_fluctuation: "INTERMITTENT",
+          TRANSFORMER_FAILURE: "OUTAGE",
+          FEEDER_FAILURE: "OUTAGE",
+          INFRASTRUCTURE_FAILURE: "OUTAGE",
         };
         const newStatus = statusMap[signal.event_type] || "INTERMITTENT";
 

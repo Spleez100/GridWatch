@@ -6,6 +6,7 @@ import ScopePanel from '@/components/ScopePanel';
 import StatsPanel from '@/components/StatsPanel';
 import BottomToolbar from '@/components/BottomToolbar';
 import NodeDetailCard from '@/components/NodeDetailCard';
+import CriticalAlertsCarousel from '@/components/CriticalAlertsCarousel';
 import { useNodes, useGridStatus, useGridEvents, useReportPower, DbNode } from '@/hooks/useGridData';
 import { TrendingUp } from 'lucide-react';
 
@@ -73,6 +74,8 @@ const Index = () => {
       <div className="absolute top-4 right-5 z-[1000]">
         <SearchBar nodes={nodes} onSearchCity={handleSearchCity} onSelectNode={handleSelectNode} />
       </div>
+
+      <CriticalAlertsCarousel />
 
       <ScopePanel />
 
