@@ -215,7 +215,18 @@ CRITICAL RULES:
               role: "system",
               content: `You are a Nigerian electricity outage signal extraction engine.
 
-KNOWN MONITORING NODES: ${nodeList}
+THESE ARE REAL TCN (Transmission Company of Nigeria) STATIONS being monitored:
+${nodeList}
+
+CITY-TO-STATION MAPPING (use this to map reports mentioning areas to their nearest TCN station):
+${cityMappingHint}
+
+IMPORTANT MATCHING RULES:
+- When a report mentions a neighborhood/area, map it to the NEAREST TCN substation in that city
+- Example: "no light in Surulere Lagos" → map to "Itire 132/33kV S/S" or "Ijora 132/33kV S/S" (Lagos substations near Surulere)
+- Example: "outage in Wuse Abuja" → map to "Central Area 132/33kV S/S" or "Katampe 132/33kV S/S"
+- For area-wide reports, match to the main transmission station (330kV) for that city
+- Always use the EXACT station name from the list above when matching
 
 NIGERIAN ELECTRICITY LANGUAGE:
 Outage: "no light", "light don go", "nepa don take light", "no power since", "light never come", "power never come", "blackout", "power failure", "grid collapse"
