@@ -300,17 +300,6 @@ export default function CriticalAlertsCarousel() {
                                     Posted by: {event.source_platform === 'twitter' ? `@${event.source_handle.replace('@', '')}` : event.source_handle}
                                   </p>
                                 )}
-                                {event.source_url && (
-                                  <a
-                                    href={event.source_url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-1 text-[8px] text-primary hover:underline"
-                                  >
-                                    <ExternalLink className="w-2.5 h-2.5" />
-                                    View original source
-                                  </a>
-                                )}
                               </div>
                             </motion.div>
                           )}

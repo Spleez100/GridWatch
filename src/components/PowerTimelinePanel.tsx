@@ -204,11 +204,6 @@ export default function PowerTimelinePanel({ events, onClose }: Props) {
                                 {item.platform && ` on ${platformLabels[item.platform] || item.platform}`}
                               </p>
                             )}
-                            {item.url && (
-                              <a href={item.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[8px] text-primary hover:underline">
-                                <ExternalLink className="w-2.5 h-2.5" /> View original source
-                              </a>
-                            )}
                           </div>
                         </motion.div>
                       )}
