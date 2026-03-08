@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
-import { Clock, Zap, ZapOff, AlertTriangle, Radio } from 'lucide-react';
+import { Clock, Zap, ZapOff, AlertTriangle, Radio, X } from 'lucide-react';
 import type { DbGridEvent } from '@/hooks/useGridData';
 
 interface AiEvent {
