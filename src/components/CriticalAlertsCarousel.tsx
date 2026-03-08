@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { AlertTriangle, Zap, ZapOff, ChevronLeft, ChevronRight, Radio, ExternalLink, X, ChevronDown, ChevronUp } from 'lucide-react';
+import { AlertTriangle, Zap, ZapOff, ChevronLeft, ChevronRight, Radio, X, ChevronDown, ChevronUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface CriticalNode {
@@ -299,17 +299,6 @@ export default function CriticalAlertsCarousel() {
                                   <p className="text-[8px] text-primary">
                                     Posted by: {event.source_platform === 'twitter' ? `@${event.source_handle.replace('@', '')}` : event.source_handle}
                                   </p>
-                                )}
-                                {event.source_url && (
-                                  <a
-                                    href={event.source_url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-1 text-[8px] text-primary hover:underline"
-                                  >
-                                    <ExternalLink className="w-2.5 h-2.5" />
-                                    View original source
-                                  </a>
                                 )}
                               </div>
                             </motion.div>

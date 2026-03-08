@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
-import { Clock, Zap, ZapOff, AlertTriangle, Radio, X, ChevronDown, ChevronUp, ExternalLink } from 'lucide-react';
+import { Clock, Zap, ZapOff, AlertTriangle, Radio, X, ChevronDown, ChevronUp } from 'lucide-react';
 import type { DbGridEvent } from '@/hooks/useGridData';
 
 interface AiEvent {
@@ -203,11 +203,6 @@ export default function PowerTimelinePanel({ events, onClose }: Props) {
                                 Posted by: {item.platform === 'twitter' ? `@${item.handle.replace('@', '')}` : item.handle}
                                 {item.platform && ` on ${platformLabels[item.platform] || item.platform}`}
                               </p>
-                            )}
-                            {item.url && (
-                              <a href={item.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[8px] text-primary hover:underline">
-                                <ExternalLink className="w-2.5 h-2.5" /> View original source
-                              </a>
                             )}
                           </div>
                         </motion.div>
