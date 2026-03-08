@@ -73,6 +73,7 @@ interface ExtractedSignal {
   source_url: string | null;
   duration_mentioned: string | null;
   multiple_reports: boolean;
+  infrastructure_detail: string | null; // e.g., "Ikeja GRA Feeder 1", "Allen Avenue Transformer"
 }
 
 // Pick N random queries from across groups
