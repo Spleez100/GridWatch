@@ -31,9 +31,10 @@ interface Props {
   onClose: () => void;
   onReport: (node: DbNode, type: string) => void;
   submitting?: boolean;
+  onViewInfrastructure?: () => void;
 }
 
-export default function NodeDetailCard({ node, pixel, onClose, onReport, submitting }: Props) {
+export default function NodeDetailCard({ node, pixel, onClose, onReport, submitting, onViewInfrastructure }: Props) {
   const [reportSent, setReportSent] = useState<string | null>(null);
   const color = statusToColor(node.status);
   const cfg = statusConfig[color] || statusConfig.yellow;
