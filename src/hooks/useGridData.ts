@@ -7,9 +7,10 @@ export type DbGridStatus = Tables<'grid_status'>;
 export type DbGridEvent = Tables<'grid_events'>;
 
 // Map DB status to UI color
-export function statusToColor(status: string): 'green' | 'red' | 'yellow' {
+export function statusToColor(status: string): 'green' | 'red' | 'yellow' | 'gray' {
   if (status === 'POWER_AVAILABLE') return 'green';
   if (status === 'OUTAGE') return 'red';
+  if (status === 'UNKNOWN') return 'gray';
   return 'yellow';
 }
 

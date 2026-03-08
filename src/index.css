@@ -229,6 +229,12 @@
   color: black;
 }
 
+.node-icon-marker .marker-icon.status-gray {
+  background: hsl(var(--muted));
+  color: hsl(var(--muted-foreground));
+  opacity: 0.5;
+}
+
 .node-icon-marker .marker-icon.status-blue {
   background: hsl(210 100% 50%);
   color: white;
