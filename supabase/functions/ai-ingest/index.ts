@@ -530,6 +530,15 @@ CONFIDENCE RULES:
             .update(updateData)
             .eq("id", matchedNode.id);
 
+          // ── Status propagation: cascade to child nodes ──────
+          await propagateStatusToChildren(
+            supabase,
+            matchedNode.id,
+            newStatus,
+            signal.severity,
+            Math.max(signal.confidence - 10, 40) // children get slightly lower confidence
+          );
+
           // Log grid event
           await supabase.from("grid_events").insert({
             node_id: matchedNode.id,
