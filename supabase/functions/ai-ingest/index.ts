@@ -64,7 +64,7 @@ interface ExtractedSignal {
   location: string;
   city: string;
   state: string;
-  event_type: "outage_detected" | "power_restored" | "power_fluctuation";
+  event_type: "outage_detected" | "power_restored" | "power_fluctuation" | "TRANSFORMER_FAILURE" | "FEEDER_FAILURE" | "INFRASTRUCTURE_FAILURE";
   severity: "LOW" | "MODERATE" | "HIGH" | "CRITICAL";
   confidence: number;
   snippet: string;
