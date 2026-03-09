@@ -101,9 +101,6 @@ Deno.serve(async (req) => {
     const PERPLEXITY_API_KEY = Deno.env.get("PERPLEXITY_API_KEY");
     if (!PERPLEXITY_API_KEY) throw new Error("PERPLEXITY_API_KEY not configured");
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
-
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
@@ -187,7 +184,7 @@ CRITICAL RULES:
       );
     }
 
-    // ── Step 2: AI extraction with severity classification ─────
+    // ── Step 2: AI extraction with Perplexity structured output ──
     const nodeList = nodes
       .map((n) => `${n.name} [${n.city}, ${n.state}]`)
       .join("; ");
@@ -202,20 +199,7 @@ CRITICAL RULES:
       .map(([city, stations]) => `${city}: ${stations.join(", ")}`)
       .join("\n");
 
-    const extractionResponse = await fetch(
-      "https://ai.gateway.lovable.dev/v1/chat/completions",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${LOVABLE_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: "google/gemini-2.5-flash",
-          messages: [
-            {
-              role: "system",
-              content: `You are a Nigerian electricity outage signal extraction engine.
+    const extractionPrompt = `You are a Nigerian electricity outage signal extraction engine.
 
 THESE ARE REAL TCN (Transmission Company of Nigeria) STATIONS being monitored:
 ${nodeList}
@@ -234,10 +218,6 @@ INFRASTRUCTURE DETAIL EXTRACTION:
 - If the report mentions a specific FEEDER name (e.g., "GRA Feeder 1", "Industrial Estate Feeder"), extract it to infrastructure_detail
 - If the report mentions a specific TRANSFORMER location (e.g., "Allen Avenue Transformer", "Opebi Road Transformer"), extract it to infrastructure_detail
 - If the report mentions a SERVICE AREA or STREET (e.g., "Lekki Phase 1", "Victoria Island", "Banana Island"), extract it to infrastructure_detail
-- Examples:
-  * "No light on Allen Avenue transformer in Ikeja" → infrastructure_detail: "Allen Avenue Transformer"
-  * "GRA Feeder 2 is down in Port Harcourt" → infrastructure_detail: "GRA Feeder 2"
-  * "No power in Lekki Phase 1 since morning" → infrastructure_detail: "Lekki Phase 1"
 
 NIGERIAN ELECTRICITY LANGUAGE:
 Outage: "no light", "light don go", "nepa don take light", "no power since", "light never come", "power never come", "blackout", "power failure", "grid collapse"
@@ -266,121 +246,130 @@ CONFIDENCE RULES:
 - Note source platform (Twitter/X, Facebook, Reddit, news, forum)
 - ALWAYS extract the @handle or display name of the person who posted
 - ALWAYS extract the source URL if available from citations
-- Do NOT report old events (>24 hours) as current`,
+- Do NOT report old events (>24 hours) as current
+
+Extract ALL electricity outage/restoration signals from these search results as a JSON object with a "signals" array. Be thorough:
+
+${combinedContent}`;
+
+    const extractionResponse = await fetch(
+      "https://api.perplexity.ai/chat/completions",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${PERPLEXITY_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "sonar",
+          messages: [
+            {
+              role: "system",
+              content: "You are an expert at extracting structured data from text about Nigerian electricity outages. Always respond with valid JSON matching the requested schema.",
             },
             {
               role: "user",
-              content: `Extract ALL electricity outage/restoration signals from these search results. Be thorough:\n\n${combinedContent}`,
+              content: extractionPrompt,
             },
           ],
-          tools: [
-            {
-              type: "function",
-              function: {
-                name: "report_signals",
-                description:
-                  "Report extracted electricity outage/restoration signals from social media monitoring",
-                parameters: {
-                  type: "object",
-                  properties: {
-                    signals: {
-                      type: "array",
-                      items: {
-                        type: "object",
-                        properties: {
-                          location: {
-                            type: "string",
-                            description:
-                              "Specific area/neighborhood name (e.g. Abule Ijesha, Ajah, Surulere)",
-                          },
-                          city: { type: "string", description: "City name" },
-                          state: {
-                            type: "string",
-                            description: "Nigerian state",
-                          },
-                          event_type: {
-                            type: "string",
-                            enum: [
-                              "outage_detected",
-                              "power_restored",
-                              "power_fluctuation",
-                              "TRANSFORMER_FAILURE",
-                              "FEEDER_FAILURE",
-                              "INFRASTRUCTURE_FAILURE",
-                            ],
-                          },
-                          severity: {
-                            type: "string",
-                            enum: ["LOW", "MODERATE", "HIGH", "CRITICAL"],
-                          },
-                          confidence: {
-                            type: "integer",
-                            description:
-                              "1-100 confidence based on specificity and source count",
-                          },
-                          snippet: {
-                            type: "string",
-                            description:
-                              "Brief description of what was reported",
-                          },
-                          source_platform: {
-                            type: "string",
-                            description:
-                              "Platform source: twitter, facebook, reddit, news, forum, unknown",
-                          },
-                          source_handle: {
-                            type: "string",
-                            description:
-                              "The @handle or display name of the person who posted (e.g. @lagoslighter for Twitter, 'John Doe' for Facebook). null if unknown",
-                          },
-                          source_url: {
-                            type: "string",
-                            description:
-                              "Direct URL to the post or article if available. null if unknown",
-                          },
-                          duration_mentioned: {
-                            type: "string",
-                            description:
-                              "Duration if mentioned (e.g. '2 days', '12 hours'), null if not",
-                          },
-                          multiple_reports: {
-                            type: "boolean",
-                            description:
-                              "Whether multiple independent reports confirm this",
-                          },
-                          infrastructure_detail: {
-                            type: "string",
-                            description:
-                              "Specific infrastructure mentioned: feeder name (e.g. 'GRA Feeder 1'), transformer location (e.g. 'Allen Avenue Transformer'), service area (e.g. 'Lekki Phase 1'), or street name. null if not mentioned",
-                          },
+          response_format: {
+            type: "json_schema",
+            json_schema: {
+              name: "electricity_signals",
+              schema: {
+                type: "object",
+                properties: {
+                  signals: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        location: {
+                          type: "string",
+                          description:
+                            "Specific area/neighborhood name (e.g. Abule Ijesha, Ajah, Surulere)",
                         },
-                        required: [
-                          "location",
-                          "city",
-                          "state",
-                          "event_type",
-                          "severity",
-                          "confidence",
-                          "snippet",
-                          "source_platform",
-                          "source_handle",
-                          "source_url",
-                          "duration_mentioned",
-                          "multiple_reports",
-                        ],
-                        additionalProperties: false,
+                        city: { type: "string", description: "City name" },
+                        state: {
+                          type: "string",
+                          description: "Nigerian state",
+                        },
+                        event_type: {
+                          type: "string",
+                          enum: [
+                            "outage_detected",
+                            "power_restored",
+                            "power_fluctuation",
+                            "TRANSFORMER_FAILURE",
+                            "FEEDER_FAILURE",
+                            "INFRASTRUCTURE_FAILURE",
+                          ],
+                        },
+                        severity: {
+                          type: "string",
+                          enum: ["LOW", "MODERATE", "HIGH", "CRITICAL"],
+                        },
+                        confidence: {
+                          type: "integer",
+                          description:
+                            "1-100 confidence based on specificity and source count",
+                        },
+                        snippet: {
+                          type: "string",
+                          description:
+                            "Brief description of what was reported",
+                        },
+                        source_platform: {
+                          type: "string",
+                          description:
+                            "Platform source: twitter, facebook, reddit, news, forum, unknown",
+                        },
+                        source_handle: {
+                          type: ["string", "null"],
+                          description:
+                            "The @handle or display name of the person who posted. null if unknown",
+                        },
+                        source_url: {
+                          type: ["string", "null"],
+                          description:
+                            "Direct URL to the post or article if available. null if unknown",
+                        },
+                        duration_mentioned: {
+                          type: ["string", "null"],
+                          description:
+                            "Duration if mentioned (e.g. '2 days', '12 hours'), null if not",
+                        },
+                        multiple_reports: {
+                          type: "boolean",
+                          description:
+                            "Whether multiple independent reports confirm this",
+                        },
+                        infrastructure_detail: {
+                          type: ["string", "null"],
+                          description:
+                            "Specific infrastructure mentioned: feeder name, transformer location, service area, or street name. null if not mentioned",
+                        },
                       },
+                      required: [
+                        "location",
+                        "city",
+                        "state",
+                        "event_type",
+                        "severity",
+                        "confidence",
+                        "snippet",
+                        "source_platform",
+                        "source_handle",
+                        "source_url",
+                        "duration_mentioned",
+                        "multiple_reports",
+                      ],
                     },
                   },
-                  required: ["signals"],
-                  additionalProperties: false,
                 },
+                required: ["signals"],
               },
             },
-          ],
-          tool_choice: {
-            type: "function",
-            function: { name: "report_signals" },
           },
         }),
       }
@@ -389,15 +378,14 @@ CONFIDENCE RULES:
     if (!extractionResponse.ok) {
       const errText = await extractionResponse.text();
       throw new Error(
-        `AI Gateway error [${extractionResponse.status}]: ${errText}`
+        `Perplexity extraction error [${extractionResponse.status}]: ${errText}`
       );
     }
 
     const extractionData = await extractionResponse.json();
-    const toolCall =
-      extractionData.choices?.[0]?.message?.tool_calls?.[0];
+    const rawContent = extractionData.choices?.[0]?.message?.content;
 
-    if (!toolCall) {
+    if (!rawContent) {
       return new Response(
         JSON.stringify({
           message: "No signals extracted",
@@ -410,11 +398,11 @@ CONFIDENCE RULES:
 
     let signals: ExtractedSignal[];
     try {
-      const parsed = JSON.parse(toolCall.function.arguments);
+      const parsed = JSON.parse(rawContent);
       signals = parsed.signals || [];
     } catch {
       return new Response(
-        JSON.stringify({ message: "Failed to parse extraction", raw: toolCall }),
+        JSON.stringify({ message: "Failed to parse extraction", raw: rawContent }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
