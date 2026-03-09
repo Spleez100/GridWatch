@@ -405,8 +405,6 @@ ${combinedContent}`;
         JSON.stringify({ message: "Failed to parse extraction", raw: rawContent }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
     }
 
     // ── Step 3: Deduplication against recent ai_events ─────────
