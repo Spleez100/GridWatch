@@ -16,25 +16,25 @@ Deno.serve(async (req) => {
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, serviceRoleKey);
 
-    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    const twoDaysAgo = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
 
-    // Delete old reports (> 24h)
+    // Delete reports older than 48h
     const { count: reportsDeleted } = await supabase
       .from("reports")
       .delete({ count: "exact" })
-      .lt("created_at", oneDayAgo);
+      .lt("created_at", twoDaysAgo);
 
-    // Delete old grid_events (> 24h)
+    // Delete grid_events older than 48h
     const { count: eventsDeleted } = await supabase
       .from("grid_events")
       .delete({ count: "exact" })
-      .lt("created_at", oneDayAgo);
+      .lt("created_at", twoDaysAgo);
 
-    // Delete old ai_events (> 24h)
+    // Delete ai_events older than 48h
     const { count: aiEventsDeleted } = await supabase
       .from("ai_events")
       .delete({ count: "exact" })
-      .lt("created_at", oneDayAgo);
+      .lt("created_at", twoDaysAgo);
 
     // ── Auto-expire stale outages ──────────────────────────────
     // Nodes in OUTAGE or INTERMITTENT for 6+ hours with no recent
