@@ -1,10 +1,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
-};
+import { handleCors, jsonResponse, corsHeaders } from "../_shared/cors.ts";
+import { requireCronSecret } from "../_shared/auth.ts";
+import { recalculateGridStatus } from "../_shared/grid-status.ts";
 
 // ── Search query groups ──────────────────────────────────────────
 // We run 3 random queries per invocation to get broad coverage
@@ -93,9 +90,11 @@ function pickQueries(n: number): string[] {
 }
 
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
-  }
+  const cors = handleCors(req);
+  if (cors) return cors;
+
+  const authError = requireCronSecret(req);
+  if (authError) return authError;
 
   try {
     const PERPLEXITY_API_KEY = Deno.env.get("PERPLEXITY_API_KEY");
@@ -548,47 +547,7 @@ ${combinedContent}`;
       });
     }
 
-    // ── Step 5: Recalculate grid status ───────────────────────
-    const { count: totalNodes } = await supabase
-      .from("nodes")
-      .select("*", { count: "exact", head: true });
-    const { count: poweredNodes } = await supabase
-      .from("nodes")
-      .select("*", { count: "exact", head: true })
-      .eq("status", "POWER_AVAILABLE");
-    const { count: outageNodes } = await supabase
-      .from("nodes")
-      .select("*", { count: "exact", head: true })
-      .eq("status", "OUTAGE");
-    const { count: intermittentNodes } = await supabase
-      .from("nodes")
-      .select("*", { count: "exact", head: true })
-      .eq("status", "INTERMITTENT");
-
-    const t = totalNodes ?? 1;
-    const outageRatio = (outageNodes ?? 0) / t;
-    let gridStatus = "GRID_STABLE";
-    if (outageRatio > 0.6) gridStatus = "GRID_COLLAPSE";
-    else if (outageRatio > 0.4) gridStatus = "PARTIAL_OUTAGE";
-    else if (outageRatio > 0.2) gridStatus = "GRID_FLUCTUATING";
-
-    const { data: existingGrid } = await supabase
-      .from("grid_status")
-      .select("id")
-      .limit(1)
-      .single();
-    if (existingGrid) {
-      await supabase
-        .from("grid_status")
-        .update({
-          status: gridStatus,
-          total_nodes: totalNodes ?? 0,
-          powered_nodes: poweredNodes ?? 0,
-          outage_nodes: outageNodes ?? 0,
-          intermittent_nodes: intermittentNodes ?? 0,
-        })
-        .eq("id", existingGrid.id);
-    }
+    const gridStatus = await recalculateGridStatus(supabase);
 
     return new Response(
       JSON.stringify({

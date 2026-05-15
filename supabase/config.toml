@@ -1,1 +1,26 @@
-project_id = "rzwwotrkfvszgtslisei"
+# Link to your project: supabase link --project-ref YOUR_PROJECT_REF
+# project_id is set locally after linking; do not commit production IDs.
+
+[api]
+enabled = true
+
+[db]
+major_version = 15
+
+[functions.report-power]
+verify_jwt = false
+
+[functions.ai-ingest]
+verify_jwt = false
+
+[functions.cleanup-old-data]
+verify_jwt = false
+
+[functions.seed-locations]
+verify_jwt = false
+
+[functions.seed-tcn-stations]
+verify_jwt = false
+
+[functions.seed-infrastructure]
+verify_jwt = false

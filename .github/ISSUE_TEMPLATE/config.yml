@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions & discussions
+    url: https://github.com/Spleez100/GridWatch/discussions
+    about: Ask questions and share ideas
+  - name: Security vulnerability
+    url: https://github.com/Spleez100/GridWatch/security/advisories/new
+    about: Report a security issue privately

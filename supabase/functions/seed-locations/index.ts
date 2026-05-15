@@ -1,10 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
-};
+import { handleCors, corsHeaders } from "../_shared/cors.ts";
+import { requireCronSecret } from "../_shared/auth.ts";
 
 // ── DisCo coverage by state ──────────────────────────────────
 const DISCO_MAP: Record<string, string> = {
@@ -536,9 +532,11 @@ const LOCATIONS: LocEntry[] = [
 ];
 
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
-  }
+  const cors = handleCors(req);
+  if (cors) return cors;
+
+  const authError = requireCronSecret(req);
+  if (authError) return authError;
 
   try {
     const supabase = createClient(
